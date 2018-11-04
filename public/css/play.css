@@ -1,0 +1,43 @@
+#team-card-container {
+  --card-shadow: 0 2px 3px rgba(black, 0.1), 0 0 0 1px rgba(black, 0.1);
+}
+
+.columns {
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+}
+
+.team-card {
+  margin-bottom: 1em;
+}
+
+.box-list-container {
+  padding: 30px;
+}
+
+.c-player-card {
+  padding: 16px;
+}
+
+.live-span {
+  color: #EF5350;
+}
+
+.level-span {
+  color: #42A5F5;
+}
+
+.chance-span {
+  color: #f45b5b;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+#itemView {
+  margin: 10px;
+}
+
+#itemView span, b, i {
+  margin-left: 4px;
+  margin-right: 4px;
+}

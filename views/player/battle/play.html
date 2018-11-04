@@ -1,0 +1,628 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content='initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="../bulma.min.css">
+  <link rel="stylesheet" href="../animate.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="../globals.js"></script>
+
+</head>
+<body onload="loaded();">
+
+  <figure class="image pkmn-gif" id="enemy-pkmn">
+    <img src="">
+  </figure>
+
+  <figure class="image pkmn-gif" id="own-pkmn">
+    <img src="">
+  </figure>
+
+  <div class="box pkmn-box" id="enemy-box">
+    <h5 class="title is-5">Pokemon</h1>
+    <progress class="progress is-danger" value="100" max="100"></progress>
+  </div>
+
+  <div class="box pkmn-box" id="own-box">
+    <h5 class="title is-5">Warten auf Auswahl...</h1>
+    <progress class="progress is-danger" value="100" max="100"></progress>
+  </div>
+
+  <div class="box" id="ui-container">
+
+  </div>
+
+  <div class="notification" id="dialog" style="display:none;"> <!-- -->
+  </div>
+
+  <img id="pokeball">
+
+</body>
+<style>
+.pkmn-box {
+  position: fixed;
+  width: 45vw;
+  padding: 1vh;
+}
+.pkmn-box {
+}
+#enemy-box {
+  top: 1vh;
+  left: 1vw;
+}
+#own-box {
+  bottom: 46vh;
+  right: 1vw;
+}
+.pkmn-gif {
+  position: fixed;
+  height: 22vh;
+}
+#enemy-pkmn {
+  top: 1vh;
+  right: 3vw;
+}
+#own-pkmn {
+  bottom: 46vh;
+  left: 3vw;
+}
+.pkmn-gif img {
+   height: 100%;
+   width: auto;
+   image-rendering: pixelated;
+   image-rendering: -moz-crisp-edges;
+   image-rendering: crisp-edges;
+}
+#ui-container {
+  background-color: #576170;
+  position: fixed;
+  bottom: 0vw;
+  margin-bottom: 0vw;
+  width: 100%;
+  height: 45vh;
+  vertical-align: middle;
+  text-align: center;
+  overflow-y: auto;
+  border-radius: 4px 4px 0px 0px;
+}
+.ui-kopftitel {
+  text-align: center;
+  color: white;
+}
+.pkmn-minigif {
+  height: 100%;
+}
+.pkmn-minigif img {
+   height: 100%;
+   width: auto;
+}
+.select-pokemon-box {
+  padding: 0px;
+  height: 10vh;
+  width: 45vw;
+}
+.select-pokemon-box h5 {
+  line-height: auto;
+  margin-bottom: 0px;
+  font-size: 4vw;
+  font-weight: bold;
+}
+.select-pokemon-box p {
+  line-height: auto;
+  font-size: 2vw;
+  margin-bottom: 0px;
+}
+.fight-button {
+  width: 90vw;
+  height: 30%;
+  margin-bottom: 2vh;
+  margin-top: 5vh;
+  font-weight: bold;
+}
+.down-buttons {
+  padding: 1vw;
+}
+.down-button {
+  height: 10%;
+  margin: 1vw;
+  font-weight: bold;
+}
+.attack {
+  margin: 2vw;
+  padding: 1vw;
+}
+#dialog {
+  position: fixed;
+  bottom: 0px;
+  left: 2%;
+  width: 96%;
+  margin-bottom: 2vh;
+  border-style: solid;
+  border-color: #dbdbdb;
+  border-width: 1px;
+}
+.panel {
+  background-color: white;
+  border-radius: 4px;
+  margin-bottom: 2vh;
+}
+.panel-block a span,b,i {
+  margin-left: 2px;
+  margin-right: 2px;
+  text-align: center;
+}
+.itemViewBlock {
+  text-align: center;
+}
+#pokeball {
+  width: 5vh;
+  height: 5vh;
+  position: fixed;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  display: hidden;
+}
+.throw-anim {
+  animation: throw 1s ease-in;
+  animation-fill-mode: forwards;
+}
+@keyframes throw {
+  0% { opacity: 0; right: 95vw; top: 44vh; }
+  20% { opacity: 1; }
+  100% {right: 15vw; top: 15vh; }
+}
+.bottom-panel {
+  border-radius: 0px 0px 4px 4px;
+}
+
+</style>
+<script>
+// Imports
+var fight = {};
+var cache = { ownPkmn: 0 };
+
+function updateView() {
+
+  document.getElementById("enemy-box").getElementsByClassName("title").item(0).innerHTML = fight.pokemon.enemy.name + " Lvl. " + fight.pokemon.enemy.level;
+  document.getElementById("enemy-box").getElementsByClassName("progress").item(0).value = fight.pokemon.enemy.hp;
+  document.getElementById("enemy-box").getElementsByClassName("progress").item(0).max = Math.floor((2 * fight.pokemon.enemy.stats.hp.base + fight.pokemon.enemy.stats.hp.iv + fight.pokemon.enemy.stats.hp.ev) * fight.pokemon.enemy.level / 100 + fight.pokemon.enemy.level + 10);
+  document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).src = fight.pokemon.enemy.img;
+
+  if (Object.keys(fight.pokemon.player).length !== 0) {
+    document.getElementById("own-box").getElementsByClassName("title").item(0).innerHTML = fight.pokemon.player.name + " Lvl. " + fight.pokemon.player.level;
+    document.getElementById("own-box").getElementsByClassName("progress").item(0).value = fight.pokemon.player.hp;
+    document.getElementById("own-box").getElementsByClassName("progress").item(0).max = Math.floor((2 * fight.pokemon.player.stats.hp.base + fight.pokemon.player.stats.hp.iv + fight.pokemon.player.stats.hp.ev) * fight.pokemon.player.level / 100 + fight.pokemon.player.level + 10);
+    document.getElementById("own-pkmn").getElementsByTagName("img").item(0).src = fight.pokemon.player.img;
+    if ( cache.ownPkmn == 0 ) {
+      document.getElementById("own-pkmn").getElementsByTagName("img").item(0).classList.add("animated", "bounceIn");
+      setTimeout(function(){ document.getElementById("own-pkmn").getElementsByTagName("img").item(0).classList.remove("animated", "bounceIn"); }, 1000);
+      cache.ownPkmn = 1;
+    }
+  }
+}
+
+function updateControls() {
+
+  if (Object.keys(fight.pokemon.player).length === 0) { // Initial pokemon selection
+    var column1 = '';
+    var column2 = '';
+    for (i = 0; i < team.length; i++) {
+      if (isOdd(i) == 0) { // 0, 2, 4: Left column1
+        column1 = column1 + '<div class="box select-pokemon-box columns is-mobile" onclick="pickPkmn('+i+')"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5>'+team[i].name+'</h5><p>Lvl. '+team[i].level+'</p></div></div>';
+      } else { // 1, 3, 5: Right column2
+        column2 = column2 + '<div class="box select-pokemon-box columns is-mobile" onclick="pickPkmn('+i+')"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5>'+team[i].name+'</h5><p>Lvl. '+team[i].level+'</p></div></div>';
+      }
+    }
+    insert = '<div class="columns"><div class="column">' + column1 + '</div><div class="column">' + column2 + '</div></div>';
+    document.getElementById("ui-container").innerHTML = '<h5 class="title is-5 ui-kopftitel">Wähle ein Pokemon...</h5>' + insert;
+  } else {
+
+    if (fight.stage == 0) { // Build controls
+      if (fight.type == "wild") { var fleeOpt = '<button class="button down-button is-info column" onclick="fleeButton();">Flucht</button>'; } else { var fleeOpt = ""; }
+      document.getElementById("ui-container").innerHTML = '<h5 class="title is-5 ui-kopftitel">Was wirst Du tun?</h5><button class="button fight-button" onclick="fightButton();">Angriff</button><div class="columns down-buttons is-mobile"><button class="button down-button is-warning column" onclick="bagButton(0);">Beutel</button>'+fleeOpt+'<button class="button down-button is-success column" onclick="switchButton();">Tausch</button>';
+
+    } else if (fight.stage == 1) { // Build loading screen
+      document.getElementById("ui-container").innerHTML = '<div class="lds-grid animated flipInX"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
+    }
+
+  }
+
+}
+
+function checkRole(){
+  if (fight.player !== sessionStorage.getItem('name')) {
+    window.location.href = "/battle";
+  }
+}
+
+function isOdd(num) { return num % 2;} // Helper function || odd = ungerade
+
+// Info-Update
+socket.on('fight-update', function(obj){ // Answer to the requested User List
+  if (obj.type == "") {  window.location.href = "/play"; }
+  fight = obj;
+  checkRole();
+  updateView();
+  updateControls();
+  console.log(items);
+});
+
+socket.on('in-fight', function(n) {
+  // Switch back from fight screen whenever it ended.
+  if (n == 0) {
+    window.location.href = "/play";
+  }
+});
+
+socket.on('do-animation', function(obj) {
+  if (obj.type == "catch") {
+
+  }
+});
+
+function pickPkmn(i) {
+  document.getElementById("ui-container").getElementsByClassName("select-pokemon-box").item(i).classList.add("animated");
+    document.getElementById("ui-container").getElementsByClassName("select-pokemon-box").item(i).classList.add("bounceOut");
+  setTimeout(function(){ socket.emit('pick-pkmn', team[i]) }, 1000);
+}
+
+/*
+        STAGE 0: UI Controls
+*/
+function fightButton() {
+  // List the attacks
+  var ui = document.getElementById("ui-container");
+  ui.innerHTML = '<h5 class="title is-5 ui-kopftitel">Welche Attacke?</h5>';
+  ui.innerHTML = ui.innerHTML + '<div class="columns is-mobile">';
+  // Attacke No. 1
+  if ( fight.pokemon.player.attacks[0] !== null ) {
+    ui.innerHTML = ui.innerHTML + '<a class="button attack column is-half"><span><b>'+fight.pokemon.player.attacks[0].name+'  </b></span><span> '+fight.pokemon.player.attacks[0].pp+'/'+fight.pokemon.player.attacks[0].ppMax+' </span><span class="tag is-dark">'+fight.pokemon.player.attacks[0].typ+'</span></a>';
+  } else { ui.innerHTML = ui.innerHTML + '<a class="button is-dark column is-half"> N / A </a>'; }
+  // Attacke No. 3
+  if ( fight.pokemon.player.attacks[2] !== null ) {
+    ui.innerHTML = ui.innerHTML + '<a class="button attack column is-half"><span><b>'+fight.pokemon.player.attacks[2].name+'  </b></span><span> '+fight.pokemon.player.attacks[2].pp+'/'+fight.pokemon.player.attacks[2].ppMax+' </span><span class="tag is-dark">'+fight.pokemon.player.attacks[2].typ+'</span></a></div>';
+  } else { ui.innerHTML = ui.innerHTML + '<a class="button is-dark column is-half"> N / A </a></div>'; }
+  // Attacke No. 2
+  if ( fight.pokemon.player.attacks[1] !== null ) {
+    ui.innerHTML = ui.innerHTML + '<a class="button attack column is-half"><span><b>'+fight.pokemon.player.attacks[1].name+'  </b></span><span> '+fight.pokemon.player.attacks[1].pp+'/'+fight.pokemon.player.attacks[1].ppMax+' </span><span class="tag is-dark">'+fight.pokemon.player.attacks[1].typ+'</span></a>';
+  } else { ui.innerHTML = ui.innerHTML + '<a class="button is-dark column is-half"> N / A </a>'; }
+  // Attacke No. 4
+  if ( fight.pokemon.player.attacks[3] !== null ) {
+    ui.innerHTML = ui.innerHTML + '<a class="button attack column is-half"><span><b>'+fight.pokemon.player.attacks[3].name+'  </b></span><span> '+fight.pokemon.player.attacks[3].pp+'/'+fight.pokemon.player.attacks[3].ppMax+' </span><span class="tag is-dark">'+fight.pokemon.player.attacks[3].typ+'</span></a></div>';
+  } else { ui.innerHTML = ui.innerHTML + '<a class="button is-dark column is-half"> N / A </a></div>'; }
+
+
+
+  ui.innerHTML = ui.innerHTML + '</div><button class="button is-danger back" onclick="updateControls();">Zurück</button>';
+}
+
+function bagButton(cat) { // Categories: 0 = Alle, 1 = Pokebälle, 2 = Medizin, 3 = Kampfitems
+  // List the items
+  var ui = document.getElementById("ui-container");
+  var insert = "";
+  var filterItems = [];
+  // Filter the items by cat
+  console.log("Category: " + cat);
+  if (cat == "" || cat == null || cat == 0) {
+    filterItems = items;
+  } else if (cat == 1) {
+    for (i = 0; i < items.length; i++) {
+      // Add Pokeballs
+      if (items[i].category.name == "special-balls" || items[i].category.name == "standard-balls") {
+        filterItems.push(items[i]);
+      }
+      // TODO: Add other cats
+    }
+  }
+  // Get all the selected items together
+  for (i = 0; i < filterItems.length; i++) {
+    insert = insert + '<a class="panel-block itemViewBlock" onclick="useItem(' + filterItems[i].id + ');"><span><img src="' + filterItems[i].img + '"></span><b>' + filterItems[i].name + '</b><i>x' + filterItems[i].count + '</i>';
+  }
+  // Set the active tab by category
+  if (cat == "" || cat == null || cat == 0) {
+    ui.innerHTML = '<nav class="panel"><p class="panel-heading">Items</p><p class="panel-tabs"><a class="is-active">Alle</a><a onclick="bagButton(1);">Pokebälle</a><a onclick="bagButton(2);">Medizin</a><a onclick="bagButton(3);">Kampfitems</a></p>' + insert + '<a class="panel-block itemViewBlock bottom-panel"><button class="button is-danger is-outlined is-fullwidth back" onclick="updateControls();">Zurück</button></a></nav>';
+  } else if (cat == 1) {
+    ui.innerHTML = '<nav class="panel"><p class="panel-heading">Items</p><p class="panel-tabs"><a onclick="bagButton(0);">Alle</a><a class="is-active">Pokebälle</a><a onclick="bagButton(2);">Medizin</a><a onclick="bagButton(3);">Kampfitems</a></p>' + insert + '<a class="panel-block itemViewBlock bottom-panel"><button class="button is-danger is-outlined is-fullwidth back" onclick="updateControls();">Zurück</button></a></nav>';
+  } else if (cat == 2) {
+    ui.innerHTML = '<nav class="panel"><p class="panel-heading">Items</p><p class="panel-tabs"><a onclick="bagButton(0);">Alle</a><a onclick="bagButton(1);">Pokebälle</a><a class="is-active">Medizin</a><a onclick="bagButton(3);">Kampfitems</a></p>' + insert + '<a class="panel-block itemViewBlock bottom-panel"><button class="button is-danger is-outlined is-fullwidth back" onclick="updateControls();">Zurück</button></a></nav>';
+  } else if (cat == 3) {
+    ui.innerHTML = '<nav class="panel"><p class="panel-heading">Items</p><p class="panel-tabs"><a onclick="bagButton(0);">Alle</a><a onclick="bagButton(1);">Pokebälle</a><a onclick="bagButton(2);">Medizin</a><a class="is-active">Kampfitems</a></p>' + insert + '<a class="panel-block itemViewBlock bottom-panel"><button class="button is-danger is-outlined is-fullwidth back" onclick="updateControls();">Zurück</button></a></nav>';
+  }
+
+}
+
+function useItem(id){
+  for (i = 0; i < items.length; i++) {
+    if (items[i].id == id) {
+      var item = items[i];
+      item.player = sessionStorage.getItem("name");
+      socket.emit('use-item', item);
+      document.getElementById("ui-container").innerHTML = '';
+    }
+  }
+}
+
+function fleeButton() {
+  // Send a server-request to flee
+  document.getElementById("ui-container").getElementsByClassName("title").item(0).classList.add("animated");
+  document.getElementById("ui-container").getElementsByClassName("title").item(0).classList.add("fadeOut");
+  document.getElementById("ui-container").getElementsByClassName("button").item(0).classList.add("animated");
+  document.getElementById("ui-container").getElementsByClassName("button").item(0).classList.add("fadeOut");
+  document.getElementById("ui-container").getElementsByClassName("button").item(1).classList.add("animated");
+  document.getElementById("ui-container").getElementsByClassName("button").item(1).classList.add("fadeOut");
+  document.getElementById("ui-container").getElementsByClassName("button").item(3).classList.add("animated");
+  document.getElementById("ui-container").getElementsByClassName("button").item(3).classList.add("fadeOut");
+  setTimeout(function(){
+    document.getElementById("ui-container").getElementsByClassName("button").item(2).classList.add("animated");
+    document.getElementById("ui-container").getElementsByClassName("button").item(2).classList.add("zoomOutDown");
+    setTimeout(function(){
+      document.getElementById("ui-container").innerHTML = "";
+      socket.emit('flee');
+    }, 500);
+  }, 700);
+
+}
+
+function switchButton() {
+  // List the current Pokemon
+  var column1 = '';
+  var column2 = '';
+  for (i = 0; i < team.length; i++) {
+    if (isOdd(i) == 0) { // 0, 2, 4: Left column1
+      if (team[i].id == fight.pokemon.player.id ) { // Currently fighting Pokemon
+        column1 = column1 + '<div class="box select-pokemon-box columns is-mobile"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5 class="title is-5">'+team[i].name+'</h5><p><b>Bereits im Kampf!</b></p></div></div>';
+      } else {
+        column1 = column1 + '<div class="box select-pokemon-box columns is-mobile" onclick="pickPkmn('+i+')"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5 class="title is-5">'+team[i].name+'</h5><p>Lvl. '+team[i].level+'</p></div></div>';
+      }
+    } else { // 1, 3, 5: Right column2
+      if (team[i].attr('id') == fight.pokemon.player.attr('id') ) { // Currently fighting Pokemon
+        column2 = column2 + '<div class="box select-pokemon-box columns is-mobile"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5 class="title is-5">'+team[i].name+'</h5><p><b>Bereits im Kampf!</b></p></div></div>';
+      } else {
+        column2 = column2 + '<div class="box select-pokemon-box columns is-mobile" onclick="pickPkmn('+i+')"><div class="column is-half"><figure class="image pkmn-minigif"><img src="'+team[i].img+'"></figure></div><div class="column"><h5 class="title is-5">'+team[i].name+'</h5><p>Lvl. '+team[i].level+'</p></div></div>';
+      }
+    }
+  }
+  insert = '<div class="columns"><div class="column">' + column1 + '</div><div class="column">' + column2 + '</div></div>';
+  document.getElementById("ui-container").innerHTML = '<h5 class="title is-5 ui-kopftitel">Wähle ein Pokemon...</h5>' + insert + '<button class="button is-danger back" onclick="updateControls();">Zurück</button>';
+}
+
+socket.on ('fight-dialog', function(obj) {
+  var dialog = document.getElementById("dialog");
+
+  // If the Dialog is there already
+  if ( dialog.classList.contains("bounceInUp") ) {
+    console.log("Contains bounceInUp");
+
+    dialog.classList.remove("animated");
+    dialog.classList.remove("bounceInUp");
+
+    setTimeout(function() {
+      dialog.classList.add("animated");
+      dialog.classList.add("bounceOutDown");
+    }, 100);
+
+    setTimeout(function() {
+      dialog.classList.remove("animated");
+      dialog.classList.remove("bounceOutDown");
+      dialog.innerHTML = '<h5 class="title is-5">'+obj.msg+'</h5>';
+      if (Object.keys(obj).length == 2) { setTimeout( function(){ dialog.innerHTML = dialog.innerHTML + '<p class="animated flipInY">' + obj.sub + '</p>' }, 2000) }
+      dialog.classList.add("animated");
+      dialog.classList.add("bounceInUp");
+      dialog.style.display = "block";
+
+      setTimeout(function(){
+        dialog.classList.remove("animated");
+        dialog.classList.remove("bounceInUp");
+        dialog.classList.add("animated");
+        dialog.classList.add("bounceOutDown");
+        setTimeout(function(){
+          dialog.innerHtml = '';
+          dialog.style.display = "none";
+          dialog.classList.remove("animated");
+          dialog.classList.remove("bounceOutDown");
+        }, 1200);
+      }, 6500);
+
+    },1500);
+
+  // If the the dialog is currently disappearing
+  } else if ( dialog.classList.contains("bounceOutDown") ) {
+    console.log("Contains bounceInDown");
+    dialog.classList.remove("animated");
+    dialog.classList.remove("bounceOutDown");
+
+    setTimeout(function() {
+      dialog.innerHTML = '<h5 class="title is-5">'+obj.msg+'</h5>';
+      if (Object.keys(obj).length == 2) { setTimeout( function(){ dialog.innerHTML = dialog.innerHTML + '<p class="animated flipInY">' + obj.sub + '</p>' }, 2000) }
+      dialog.classList.add("animated");
+      dialog.classList.add("bounceInUp");
+      dialog.style.display = "block";
+
+      setTimeout(function(){
+        dialog.classList.remove("animated");
+        dialog.classList.remove("bounceInUp");
+        dialog.classList.add("animated");
+        dialog.classList.add("bounceOutDown");
+        setTimeout(function(){
+          dialog.innerHtml = '';
+          dialog.style.display = "none";
+          dialog.classList.remove("animated");
+          dialog.classList.remove("bounceOutDown");
+        }, 1200);
+      }, 6500);
+    },1200);
+
+  // If the dialog does not exist
+  } else {
+    console.log("Else");
+
+    dialog.innerHTML = '<h5 class="title is-5">'+obj.msg+'</h5>';
+    if (Object.keys(obj).length == 2) { setTimeout( function(){ dialog.innerHTML = dialog.innerHTML + '<p class="animated flipInY">' + obj.sub + '</p>' }, 2000) }
+    dialog.classList.add("animated");
+    dialog.classList.add("bounceInUp");
+    dialog.style.display = "block";
+
+    setTimeout(function(){
+      dialog.classList.remove("animated");
+      dialog.classList.remove("bounceInUp");
+      dialog.classList.add("animated");
+      dialog.classList.add("bounceOutDown");
+      setTimeout(function(){
+        dialog.innerHtml = '';
+        dialog.style.display = "none";
+        dialog.classList.remove("animated");
+        dialog.classList.remove("bounceOutDown");
+      }, 1200);
+    }, 6500);
+  }
+
+});
+
+socket.on ('do-animation', function(obj) {
+  // Throw a pokeball
+  if (obj.type == "catch") {
+    var pball = document.getElementById("pokeball");
+    pball.style.display = "initial";
+    pball.setAttribute("src", obj.img);
+    pball.setAttribute("class", "throw-anim");
+    setTimeout(function () {
+      // Do Bounce Out Animation of Pokemon
+      if (document.getElementById("enemy-pkmn").classList.contains("animated")) { document.getElementById("enemy-pkmn").classList.remove('animated'); };
+      if (document.getElementById("enemy-pkmn").classList.contains("bounceOut")) { document.getElementById("enemy-pkmn").classList.remove('bounceIn'); };
+      document.getElementById("enemy-pkmn").classList.add("animated", "bounceOut");
+    }, 1000);
+    setTimeout(function () {
+      document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).setAttribute("src", "");
+      document.getElementById("enemy-pkmn").classList.remove("animated", "bounceOut");
+      pball.style.top = "15vh";
+      pball.style.right = "15vw";
+      // Do Pokeball shakes
+      if (obj.nr==4) {
+        pball.setAttribute("class", "animated shake");
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 1900);
+        setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 2200);
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 3800);
+        setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 4000);
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 5600);
+        setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 7000);
+      }
+      if (obj.nr==3) {
+        pball.setAttribute("class", "animated shake");
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 1500);
+        setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 1600);
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 3500);
+        setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 3600);
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 4900);
+      }
+      if (obj.nr==2) {
+        pball.setAttribute("class", "animated shake");
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 1700);
+        setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 1800);
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 3000);
+      }
+      if (obj.nr==1) {
+        pball.setAttribute("class", "animated shake");
+        setTimeout(function(){ pball.setAttribute("class", ""); }, 1500);
+      }
+      if (obj.nr==0) {
+
+      }
+    }, 2200);
+  }
+});
+
+</script>
+<style>
+::-webkit-scrollbar
+{
+  width: 12px;  /* for vertical scrollbars */
+  height: 12px; /* for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track
+{
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb
+{
+  background: rgba(0, 0, 0, 0.5);
+}
+/* LOADING ANIMATION */
+.lds-grid {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-grid div {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  animation: lds-grid 1.2s linear infinite;
+}
+.lds-grid div:nth-child(1) {
+  top: 6px;
+  left: 6px;
+  animation-delay: 0s;
+}
+.lds-grid div:nth-child(2) {
+  top: 6px;
+  left: 26px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(3) {
+  top: 6px;
+  left: 45px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(4) {
+  top: 26px;
+  left: 6px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(5) {
+  top: 26px;
+  left: 26px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(6) {
+  top: 26px;
+  left: 45px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(7) {
+  top: 45px;
+  left: 6px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(8) {
+  top: 45px;
+  left: 26px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(9) {
+  top: 45px;
+  left: 45px;
+  animation-delay: -1.6s;
+}
+@keyframes lds-grid {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+</style>

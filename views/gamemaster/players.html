@@ -1,0 +1,61 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="../bulma.min.css">
+  <link rel="stylesheet" href="../play.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
+  <script src="/globals.js"></script>
+  <script src="/gm.js"></script>
+
+</head>
+<body onload='loaded("player");'>
+  <!-- NAVIGATION BAR -->
+  <div class="tabs is-centered">
+    <ul>
+      <li><a href="/gm/controls">
+        <span class="icon is-small"><i class="fas fa-calculator" aria-hidden="true"></i></span>
+        <span>Controls</span>
+      </a></li>
+      <li><a href="/gm/fight">
+        <span class="icon is-small"><i class="fas fa-chess-knight" aria-hidden="true"></i></span>
+        <span>Kämpfe</span>
+      </a></li>
+      <li class="is-active"><a>
+        <span class="icon is-small"><i class="fas fa-child" aria-hidden="true"></i></span>
+        <span>Spieler</span>
+      </a></li>
+    </ul>
+  </div>
+
+  <!-- Player-List -->
+  <div class="container box-list-container" id="cplayer-list">
+  </div>
+
+  <!-- View-Pokemon Popup -->
+  <div class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Pokemon Name</p>
+        <button class="delete" aria-label="close"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success">Level Up</button>
+        <button class="button">Edit</button>
+      </footer>
+    </div>
+  </div>
+
+</body>

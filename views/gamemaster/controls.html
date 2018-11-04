@@ -1,0 +1,133 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="../bulma.min.css">
+  <link rel="stylesheet" href="../play.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
+  <script src="/globals.js"></script>
+  <script src="/createPokemon.js"></script>
+  <script src="/gm.js"></script>
+
+</head>
+<body onload='loaded("controls");'>
+  <!-- NAVIGATION BAR -->
+  <div class="tabs is-centered">
+    <ul>
+      <li class="is-active"><a>
+        <span class="icon is-small"><i class="fas fa-calculator" aria-hidden="true"></i></span>
+        <span>Controls</span>
+      </a></li>
+      <li><a href="/gm/fight">
+        <span class="icon is-small"><i class="fas fa-chess-knight" aria-hidden="true"></i></span>
+        <span>Kämpfe</span>
+      </a></li>
+      <li><a href="/gm/players">
+        <span class="icon is-small"><i class="fas fa-child" aria-hidden="true"></i></span>
+        <span>Spieler</span>
+      </a></li>
+    </ul>
+  </div>
+
+  <!-- List of Events / Settings -->
+  <div class="container box-list-container">
+    <div class="box" onclick="openNewPokemonModal();">
+      <h1 class="title is-3">
+        Wildes Pokemon
+      </h1>
+    </div>
+    <div class="box" onclick="openNewItemModal();">
+      <h1 class="title is-3">
+        Finde Item
+      </h1>
+    </div>
+  </div>
+
+  <!-- New Pokemon Window -->
+  <div class="modal" id="newPokemonModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">New Pokemon</p>
+        <button class="delete" aria-label="close" onclick="closeNewPokemonModal();"></button>
+      </header>
+
+      <section class="modal-card-body">
+        <p class="title is-3">Location</p>
+        <div class="dropdown" onclick="openNewPokemonModalDropdown();">
+          <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+              <span id="selected-location">Select Location</span>
+              <span class="icon is-small">
+                <i class="fas fa-angle-down" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+          <div class="dropdown-menu" role="menu">
+            <div class="dropdown-content">
+              <a class="dropdown-item">
+                Dropdown item
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="modal-card-foot">
+        <button class="button is-success" onclick="submitLocation();">Select</button>
+        <!--<button class="button">Randomize</button>-->
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal" id="newItemModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">New Item</p>
+        <button class="delete" aria-label="close" onclick="closeNewItemModal();"></button>
+      </header>
+
+      <section class="modal-card-body">
+        <nav class="panel">
+          <a class="panel-block">
+            <span class="panel-icon">
+              <i class="fas fa-atom" aria-hidden="true"></i>
+            </span>
+            <span>Custom</span>
+          </a>
+          <a class="panel-block" onclick="pokeballSelection();">
+            <span class="panel-icon">
+              <i class="fas fa-baseball-ball" aria-hidden="true"></i>
+            </span>
+            <span>Pokeballs</span>
+          </a>
+          <a class="panel-block">
+            <span class="panel-icon">
+              <i class="fas fa-compact-disc" aria-hidden="true"></i>
+            </span>
+            <span>TM / VM</span>
+          </a>
+          <a class="panel-block">
+            <span class="panel-icon">
+              <i class="fas fa-prescription-bottle-alt" aria-hidden="true"></i>
+            </span>
+            <span>Medizin</span>
+          </a>
+        </nav>
+      </section>
+
+      <footer class="modal-card-foot">
+      </footer>
+    </div>
+  </div>
+
+</body>

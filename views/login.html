@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="bulma.min.css">
+  <link rel="stylesheet" href="user.css">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="/login.js"></script>
+
+</head>
+<body onload="loaded();">
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Pokemon
+      </h1>
+      <p class="subtitle">
+        Pen & Paper
+      </p>
+    </div>
+  </section>
+  <section class="section" id="bottom-section">
+    <div class="container">
+      <p class="subtitle">
+        <strong>Login</strong>
+      </p>
+      <div class="columns">
+        <div class="select" style="margin-bottom: 0.5em">
+          <select id="user-login-dropdown">
+            <option>Loading...</option>
+          </select>
+        </div>
+        <a class="button is-info" id="search-button" onclick="loginPage();">Login</a>
+        <a class="button is-warning" id="search-button" onclick="registerPage();">Registrieren</a>
+      </div>
+    </div>
+  </section>
+</body>

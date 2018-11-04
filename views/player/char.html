@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="bulma.min.css">
+  <link rel="stylesheet" href="play.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="/globals.js"></script>
+  <script src="/play.js"></script>
+
+</head>
+<body onload="loaded();">
+  <!-- NAVIGATION BAR -->
+  <div class="tabs is-centered">
+    <ul>
+      <li><a onclick="socket.emit('user-info-request');" href="/play">
+        <span class="icon is-small"><i class="fas fa-crow" aria-hidden="true"></i></span>
+        <span>Team</span>
+      </a></li>
+      <li><a href="/beutel">
+        <span class="icon is-small"><i class="fas fa-box-open" aria-hidden="true"></i></span>
+        <span>Beutel</span>
+      </a></li>
+      <li class="is-active"><a>
+        <span class="icon is-small"><i class="fas fa-file-alt" aria-hidden="true"></i></span>
+        <span>Charakter</span>
+      </a></li>
+    </ul>
+  </div>
+
+  <!-- ITEM LIST -->
+
+
+</body>

@@ -1,0 +1,118 @@
+<!doctype html>
+<head>
+  <!-- Doc-Info -->
+  <title>Pokemon Adventure</title>
+
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Imports -->
+  <link rel="stylesheet" href="bulma.min.css">
+  <link rel="stylesheet" href="../animate.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="../globals.js"></script>
+
+</head>
+<body onload="loaded();">
+
+  <figure class="image pkmn-gif" id="enemy-pkmn">
+    <img src="">
+  </figure>
+
+  <figure class="image pkmn-gif" id="own-pkmn">
+    <img src="">
+  </figure>
+
+  <div class="box pkmn-box" id="enemy-box">
+    <h4 class="title is-4">Pokemon</h1>
+    <progress class="progress is-danger" value="100" max="100"></progress>
+  </div>
+
+  <div class="box pkmn-box" id="own-box">
+    <h4 class="title is-4">Warten auf Auswahl...</h1>
+    <progress class="progress is-danger" value="100" max="100"></progress>
+  </div>
+
+</body>
+<style>
+
+.pkmn-box {
+  position: fixed;
+  width: 50%;
+  max-width: 300px;
+}
+#enemy-box {
+  top: 20px;
+  left: 20px;
+}
+#own-box {
+  bottom: 20px;
+  right: 20px;
+}
+.pkmn-gif {
+  position: fixed;
+  height: 200px;
+}
+#enemy-pkmn {
+  top: 60px;
+  right: 40px;
+}
+#own-pkmn {
+  bottom: 100px;
+  left: 40px;
+}
+
+.pkmn-gif img {
+   height: 100%;
+   width: auto;
+   image-rendering: pixelated;
+   image-rendering: -moz-crisp-edges;
+   image-rendering: crisp-edges;
+}
+
+</style>
+<script>
+// Imports
+var fight = {};
+
+function loaded() { socket.emit('initial-request'); socket.emit('get-fight-update'); }
+
+function updateView() {
+  console.log(fight);
+  document.getElementById("enemy-box").getElementsByClassName("title").item(0).innerHTML = fight.pokemon.enemy.name + " Lvl. " + fight.pokemon.enemy.level;
+  document.getElementById("enemy-box").getElementsByClassName("progress").item(0).value = fight.pokemon.enemy.hp;
+  document.getElementById("enemy-box").getElementsByClassName("progress").item(0).max = Math.floor((2 * fight.pokemon.enemy.stats.hp.base + fight.pokemon.enemy.stats.hp.iv + fight.pokemon.enemy.stats.hp.ev) * fight.pokemon.enemy.level / 100 + fight.pokemon.enemy.level + 10);
+  document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).src = fight.pokemon.enemy.img;
+
+  if (fight.pokemon.player == {}) {
+    document.getElementById("own-box").getElementsByClassName("title").item(0).innerHTML = fight.pokemon.player.name + " Lvl. " + fight.pokemon.player.level;
+    document.getElementById("own-box").getElementsByClassName("progress").item(0).value = fight.pokemon.player.hp;
+    document.getElementById("own-box").getElementsByClassName("progress").item(0).max = Math.floor((2 * fight.pokemon.player.stats.hp.base + fight.pokemon.player.stats.hp.iv + fight.pokemon.player.stats.hp.ev) * fight.pokemon.player.level / 100 + fight.pokemon.player.level + 10);
+    document.getElementById("own-pkmn").getElementsByTagName("img").item(0).src = fight.pokemon.player.img;
+  }
+}
+
+function checkRole(){
+  if (fight.player == sessionStorage.getItem('name')) {
+    window.location.href = "/battle/play";
+  }
+}
+
+// Info-Update
+socket.on('fight-update', function(obj){ // Answer to the requested User List
+  if (obj.type == "") {  window.location.href = "/play"; }
+  fight = obj;
+  checkRole();
+  updateView();
+});
+
+socket.on('in-fight', function(n) {
+  // Switch back from fight screen whenever it ended.
+  if (n == 0) {
+    window.location.href = "/play";
+  }
+});
+
+</script>
