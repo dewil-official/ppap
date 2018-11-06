@@ -7,12 +7,8 @@ var express = require('express');
 var deasync = require('deasync');
 const Pokedex = require('pokeapi-js-wrapper');
 const P = new Pokedex.Pokedex();
-var ImgDex = require('pokedex'),
-    imgdex = new ImgDex();
-if (typeof localStorage === "undefined" || localStorage === null) {
-  var LocalStorage = require('node-localstorage').LocalStorage;
-  localStorage = new LocalStorage('./storage');
-}
+var ImgDex = require('pokedex'), imgdex = new ImgDex();
+var LocalStorage = require('node-localstorage').LocalStorage, localStorage = new LocalStorage('./storage');
 
 // CONVERT LOCAL STORAGE TO JSON
 function getStorage(name){
@@ -22,6 +18,10 @@ function getStorage(name){
 function setStorage(name, obj){
   localStorage.setItem(name, JSON.stringify(obj));
 }
+
+// Selfmade scripts
+const storage = require('./server/storage.js');
+console.log(storage.getTeamByName("Alex"));
 
 
 /* TESTING HERE : */
@@ -604,4 +604,10 @@ function getStatusBonus(status) {
 
 function catchPokemon() {
   console.log("Catched Pokemon.");
+  // Check if the user has a free team slot
+  var users = getStorage('users');
+  // for ()
+  // Then either add the wild pokemon to that
+  // Or transfer it to the bank
+  // Then, end the battle
 }
