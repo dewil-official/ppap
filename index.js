@@ -8,55 +8,14 @@ var deasync = require('deasync');
 const Pokedex = require('pokeapi-js-wrapper');
 const P = new Pokedex.Pokedex();
 var ImgDex = require('pokedex'), imgdex = new ImgDex();
-var LocalStorage = require('node-localstorage').LocalStorage, localStorage = new LocalStorage('./storage');
-
-// CONVERT LOCAL STORAGE TO JSON
-function getStorage(name){
-  return JSON.parse(localStorage.getItem(name));
-}
-
-function setStorage(name, obj){
-  localStorage.setItem(name, JSON.stringify(obj));
-}
 
 // Selfmade scripts
 const storage = require('./server/storage.js');
-console.log(storage.getTeamByName("Alex"));
 
-
-/* TESTING HERE : */
-/*
-var answer = new Promise(function(resolve, reject) {
-  for (iu = 0; iu < clients.length; iu++) {
-    if (clients[iu].name == "GameMaster") {
-      io.to(clients[iu].id).emit('gm-quest', quest);
-    }
-  }
-
-  io.sockets.on('connection', function (socket) {
-    socket.on('gm-quest-answer', function (data) {
-      resolve(data);
-    });
-  });
-
-});
-answer.then(function(value) {
-  console.log(value);
-});
-*/
-
-
-/*
-setStorage('users', [{ name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]}, { name: "GameMaster", passwort: "Gu1tarre" }]);
-
+/*storage.setUsers([{ name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]}, { name: "GameMaster", passwort: "Gu1tarre" }]);
 
 var user = { name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]};
-
-var user = { name: "GameMaster", passwort: "Gu1tarre" };
-*/
-
-// localStorage.setItem('startupKey', 'Database working properly!');
-console.log(localStorage.getItem('startupKey')); // "Database working properly!"
+var user = { name: "GameMaster", passwort: "Gu1tarre" };*/
 
 // Variables
 var clients = [];
@@ -100,29 +59,25 @@ io.on('connection', function(socket){
 
 	// User List Request
 	socket.on('requestUserList', function(){
-    socket.emit('userList', getUserList());
+    socket.emit('userList', storage.getUsers());
 	});
 
 	socket.on('registerUser', function(obj){
 
-    var userList = getStorage('users');
+    var userList = storage.getUsers();
     if (userList == null || userList == 'undefined') { userList = []; }
     userList.push(obj);
-    setStorage('users', userList);
+    storage.setUsers(userList);
 
 	});
 
 	socket.on('login', function(obj){
 
-    var userList = getStorage('users');
-    for (i = 0; i < userList.length; i++) {
-      if ( userList[i].name == obj.name ) {
-        if ( userList[i].passwort == obj.passwort ) {
-          socket.emit('login-success');
-        } else {
-          socket.emit('login-failure');
-        }
-      }
+    var user = storage.getUserByName(obj.name);
+    if ( user.passwort == obj.passwort ) {
+      socket.emit('login-success');
+    } else {
+      socket.emit('login-failure');
     }
 
     // Add username to sockety-users-object
@@ -203,26 +158,20 @@ http.listen(80, function(){
                           USER MANAGEMENT:
 // --------------------------------------------------------------- */
 
-function getUserList() {
-  if (getStorage('users') == null) {
-    setStorage('users', [])
-  }
-  return getStorage('users');
-}
-
 function updateAllUsers() {
 
   for (i = 0; i < clients.length; i++) {
     if ( clients[i].id !== 'undefined') {
 
-      var userList = getStorage('users');
+      var userList = storage.getUsers();
       for (iu = 0; iu < userList.length; iu++) {
         if ( userList[iu].name == clients[i].name && userList[iu].name == "GameMaster") {
 
-          io.to(clients[i].id).emit('user-update', { players: getStorage('users') } );
+          io.to(clients[i].id).emit('user-update', { players: storage.getUsers() } );
 
         } else if ( userList[iu].name == clients[i].name) {
 
+          // Don't send the plain-password every time
           var obj = userList[iu];
           delete obj.passwort;
           io.to(clients[i].id).emit('user-update', obj);
@@ -240,18 +189,12 @@ function updateUser(socket) {
   for (i = 0; i < clients.length; i++) {
     if ( socket.id == clients[i].id ) { // Get the user name by socket.id
 
-      var userList = getStorage('users');
-      for (u = 0; u < userList.length; u++) {
-        if ( userList[u].name == clients[i].name ) { // Get the users data by user name
+      var user = storage.getUserByName(clients[i].name);
 
-          var obj = userList[u];
-          delete obj.passwort;
-          socket.emit('user-update', obj);
-          socket.emit('in-fight', inFight);
-          break ixloop;
-
-        }
-      }
+      delete user.passwort;
+      socket.emit('user-update', user);
+      socket.emit('in-fight', inFight);
+      break ixloop;
 
     }
   }
@@ -260,7 +203,7 @@ function updateUser(socket) {
 
 function updateGm(socket) {
   // Retrieve All Userdata from Database
-  socket.emit('user-update', { players: getStorage('users') });
+  socket.emit('user-update', { players: storage.getUsers() });
 }
 
 /* --------------------------------------------------------------- //
@@ -274,15 +217,7 @@ function getTeamForSocket(socket) {
   for (ic = 0; ic < clients.length; ic++) {
     if ( socket.id == clients[ic].id ) {
 
-      var userList = getStorage('users');
-      for (ik = 0; ik < userList.length; ik++) {
-        if ( userList[ik].name == clients[ic].name ) {
-
-          return userList[ik].team;
-          break ixloop;
-
-        }
-      }
+      return storage.getTeamByName(clients[ic].name);
 
     }
   }
@@ -294,56 +229,47 @@ function newItem(obj){
   // For each player
   loop:
   for (ip = 0; ip < obj.players.length; ip++) {
-
     // Get matching user by name
-    var userList = getStorage('users');
-    for (uk = 0; uk < userList.length; uk++) {
-      // Found that user!
-      if ( userList[uk].name == obj.players[ip] ) {
-        // If the user has no items, create a new array for Insertion.
-        if ( userList[uk].items == null || userList[uk].items == "" || userList[uk].items === 'undefined' ) {
-          // Create an empty array
-          userList[uk].items = [];
-          var itemAlreadyThere = 0;
-        } else {
-          // Test if the item is already present in the item array.
-          var itemAlreadyThere = 0;
-          if (userList[uk].items.length >= 1) {
-            for (k = 0; k < userList[uk].items.length; k++) {
-              if (userList[uk].items[k] !== null) {
-                if (userList[uk].items[k].id == obj.id) {
-                  itemAlreadyThere = 1;
-                }
-              }
+    var user = storage.getUserByName(obj.players[ip]);
+    // If the user has no items, create a new array for Insertion.
+    if ( user.items == null || user.items == "" || user.items === 'undefined' ) {
+      // Create an empty array
+      user.items = [];
+      var itemAlreadyThere = 0;
+    } else {
+      // Test if the item is already present in the item array.
+      var itemAlreadyThere = 0;
+      if (user.items.length >= 1) {
+        for (k = 0; k < user.items.length; k++) {
+          if (user.items[k] !== null) {
+            if (user.items[k].id == obj.id) {
+              itemAlreadyThere = 1;
             }
           }
         }
-        // If the item isn't there already, create a new one.
-        if (itemAlreadyThere == 0) {
-          // Remove the "players" info from the item
-          var insertObj = obj;
-          delete insertObj.players;
-          // Insert that item into the player's items
-          userList[uk].items.push(insertObj);
-          setStorage('users', userList);
-          break loop;
-        // If the item is there already, raise it's count.
-        } else {
-          // Raise that item's count
-          for (k = 0; k < userList[uk].items.length; k++) {
-            if (userList[uk].items[k].id == obj.id) {
-              userList[uk].items[k].count = parseInt(userList[uk].items[k].count) + parseInt(obj.count);
-              setStorage('users', userList);
-              break loop;
-            }
-          }
-        }
-
       }
     }
-
+    // If the item isn't there already, create a new one.
+    if (itemAlreadyThere == 0) {
+      // Remove the "players" info from the item
+      var insertObj = obj;
+      delete insertObj.players;
+      // Insert that item into the player's items
+      user.items.push(insertObj);
+      storage.setUser(user);
+      break loop;
+    // If the item is there already, raise it's count.
+    } else {
+      // Raise that item's count
+      for (k = 0; k < user.items.length; k++) {
+        if (user.items[k].id == obj.id) {
+          user.items[k].count = parseInt(user.items[k].count) + parseInt(obj.count);
+          storage.setUser(user);
+          break loop;
+        }
+      }
+    }
   }
-
   // Submit that change.
   updateAllUsers();
 
@@ -431,7 +357,7 @@ function getStat(pkmn, statName) {
 
 function battleUseItem(obj) {
   // First, decrease item count
-  var userList = getStorage('users');
+  var userList = storage.getUsers();
   loop:
   for (i = 0; i < userList.length; i++) {
     // Get user by name
@@ -444,7 +370,7 @@ function battleUseItem(obj) {
           var itemName = obj.name;
           userList[i].items[ix].count = parseInt(userList[i].items[ix].count) - 1;
           if (userList[i].items[ix].count <= 0) { userList[i].items.splice(ix, 1); }
-          setStorage('users', userList);
+          storage.setUsers(userList);
           currentFight.stage = 1;
           updateFight();
           setTimeout(function(userName, itemName) { dialog(userName + ' verwendet ' + itemName + '!'); }, 2500, userName, itemName);
@@ -605,7 +531,7 @@ function getStatusBonus(status) {
 function catchPokemon() {
   console.log("Catched Pokemon.");
   // Check if the user has a free team slot
-  var users = getStorage('users');
+  var users = storage.getUsers();
   // for ()
   // Then either add the wild pokemon to that
   // Or transfer it to the bank
