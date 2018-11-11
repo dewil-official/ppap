@@ -96,6 +96,7 @@ io.on('connection', function(socket){
 
 	socket.on('initial-request', function(uname){
 
+		console.log("uname: " + uname);
     // Set the user-name again for socket.id
     for (i = 0; i < clients.length; i++) {
       if ( socket.id == clients[i].id ) { clients[i].name = uname; }
@@ -189,7 +190,9 @@ function updateUser(socket) {
   for (i = 0; i < clients.length; i++) {
     if ( socket.id == clients[i].id ) { // Get the user name by socket.id
 
+			console.log("Getting User by Name: " + clients[i].name);
       var user = storage.getUserByName(clients[i].name);
+			console.log("User: " + user);
 
       delete user.passwort;
       socket.emit('user-update', user);

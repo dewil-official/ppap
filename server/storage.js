@@ -23,7 +23,7 @@ function getUserByName(n) {
 function setUser(n) {
   var users = getUsers();
   for (i = 0; i < users.length; i++) {
-    if (users[i].name == n) {
+    if (users[i].name == n.name) {
       users[i] = n;
     }
   }
