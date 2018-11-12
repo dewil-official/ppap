@@ -77,8 +77,6 @@
 // Imports
 var fight = {};
 
-function loaded() { socket.emit('initial-request'); socket.emit('get-fight-update'); }
-
 function updateView() {
   console.log(fight);
   document.getElementById("enemy-box").getElementsByClassName("title").item(0).innerHTML = fight.pokemon.enemy.name + " Lvl. " + fight.pokemon.enemy.level;

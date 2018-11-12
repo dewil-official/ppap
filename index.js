@@ -533,10 +533,11 @@ function getStatusBonus(status) {
 
 function catchPokemon() {
   console.log("Catched Pokemon.");
-  // Check if the user has a free team slot
-  var users = storage.getUsers();
-  // for ()
-  // Then either add the wild pokemon to that
-  // Or transfer it to the bank
+  // Add that pokemon into perma storage
+  storage.catchPokemon(currentFight.player, currentFight.pokemon.enemy);
   // Then, end the battle
+	setTimeout( function() {
+		resetFight();
+		updateFight();
+	}, 10000);
 }

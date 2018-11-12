@@ -30,6 +30,21 @@ function setUser(n) {
   setUsers(users);
 }
 
+function newPokemon(u, pkmn) {
+  var users = getUsers();
+  for (i = 0; i < users.length; i++) {
+    if (users[i].name == u) {
+      // Check if team is full
+      if (users[i].team.length >= 6) {
+        users[i].bank.push(pkmn);
+      } else {
+        users[i].team.push(pkmn);
+      }
+    }
+  }
+  setUsers(users);
+}
+
 // External access to this functions
 module.exports.getUsers = function() {
   return getUsers();
@@ -49,4 +64,8 @@ module.exports.setUsers = function(u) {
 
 module.exports.setUser = function(u) {
   setUser(u);
+}
+
+module.exports.catchPokemon = function(uname, pkmn) {
+  newPokemon(uname, pkmn);
 }

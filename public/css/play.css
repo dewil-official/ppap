@@ -11,6 +11,12 @@
   margin-bottom: 1em;
 }
 
+.team-card img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
 .box-list-container {
   padding: 30px;
 }
