@@ -398,7 +398,7 @@ function battleUseItem(obj) {
                 }
               }
               console.log("CatchCount: " + catchCount);
-              if (catchCount == 4) { catchPokemon(); }
+              if (catchCount == 4) { catchPokemon(); } else { dialog(currentFight.pokemon.enemy.name + " konnte sich befreien!"); setTimeout(function(){wildTurn();}, 8000); }
               doAnimation("catch", obj.img, "enemy", catchCount);
             }, 3500);
           }
@@ -510,15 +510,6 @@ function askGm(quest) {
   gmQuest = "";
 }
 
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-
 function getStatusBonus(status) {
   if (status == null || status == "" || status === 'undefined') {
     return 1;
@@ -540,4 +531,14 @@ function catchPokemon() {
 		resetFight();
 		updateFight();
 	}, 10000);
+}
+
+function nextRound() {
+	currentFight.stage = 0;
+	currentFight.stats.rounds++;
+	updateFight();
+}
+
+function wildTurn() {
+	
 }

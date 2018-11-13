@@ -16,7 +16,8 @@ function populatePokemon(){
     } else if (team[i].typ[1] !== null) {
       typstring = '<span class="tag is-danger" style="margin-right: 0.3em;">'+team[i].typ[0]+'</span>'+'<span class="tag is-danger">'+team[i].typ[1]+'</span>';
     }
-    document.getElementById("card" + cardno).innerHTML = '<div class="card team-card"><div class="card-image"><figure class="image is-3by2"><img src="'+ team[i].img +'" alt="Loading Image..."></figure></div><div class="card-content"><progress class="progress is-danger" value="' + team[i].hp + '" max="100">' + team[i].hp + '%</progress><p class="title is-4">' + team[i].name + '</p><p class="subtitle is-6">Lv. ' + team[i].level + '</p>'+ typstring + '</div></div>';
+    var maxHp = Math.floor((2 * team[i].stats.hp.base + team[i].stats.hp.iv + team[i].stats.hp.ev) * team[i].level / 100 + team[i].level + 10);
+    document.getElementById("card" + cardno).innerHTML = '<div class="card team-card"><div class="card-image"><figure class="image is-3by2"><img src="'+ team[i].img +'" alt="Loading Image..."></figure></div><div class="card-content"><progress class="progress is-danger" value="' + team[i].hp + '" max="' + maxHp + '">' + team[i].hp + '%</progress><p class="title is-4">' + team[i].name + '</p><p class="subtitle is-6">Lv. ' + team[i].level + '</p>'+ typstring + '</div></div>';
   }
 }
 
