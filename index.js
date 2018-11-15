@@ -528,6 +528,9 @@ function catchPokemon() {
   storage.catchPokemon(currentFight.player, currentFight.pokemon.enemy);
   // Then, end the battle
 	setTimeout( function() {
+		dialog(currentFight.pokemon.enemy.name + " wurde gefangen!");
+	}, 8000);
+	setTimeout( function() {
 		resetFight();
 		updateFight();
 	}, 10000);
@@ -540,5 +543,35 @@ function nextRound() {
 }
 
 function wildTurn() {
-	
+	// Choose attack
+	var attack = currentFight.pokemon.enemy.attacks[Math.floor(Math.random()*(currentFight.pokemon.enemy.attacks.length-1))]; // Get a random number between 0 and Attack-count - 1.
+	// Do an accuracy check
+	var acc = 50; // Accuracy is 50 if it's not available.
+	if (attack.acc !== null && attack.acc !== "") { acc = attack.acc }
+	var hit = Math.floor(Math.random()*100);
+	// If the move fails, send everything to the clients.
+	if (hit>=acc) {
+		// Miss attack.
+		dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an.");
+		setTimeout(function() { io.to(clients[iu].id).emit('attack-anim', "enemy"); }, 2000);
+		setTimeout(function() { dialog("Der Angriff ging daneben.") }, 4000);
+		setTimeout(function() { nextRound(); }, 7000);
+	} else {
+		// Check if critical hit.
+		var c = Math.floor(Math.random()*16+1);
+		var a = 1; if (attack.class == "special") { a = Math.floor(Math.floor((2 * currentFight.pokemon.enemy.stats.spAtk.base + currentFight.pokemon.enemy.stats.spAtk.iv + currentFight.pokemon.enemy.stats.spAtk.ev) * currentFight.pokemon.enemy.level / 100 + 5) /* TODO: multiply by nature */); }
+		else { a = Math.floor(Math.floor((2 * currentFight.pokemon.enemy.stats.atk.base + currentFight.pokemon.enemy.stats.atk.iv + currentFight.pokemon.enemy.stats.atk.ev) * currentFight.pokemon.enemy.level / 100 + 5) /* TODO: multiply by nature */); }
+		var d = 1; if (attack.class == "special") { d = Math.floor(Math.floor((2 * currentFight.pokemon.player.stats.spDef.base + currentFight.pokemon.player.stats.spDef.iv + currentFight.pokemon.player.stats.spDef.ev) * currentFight.pokemon.player.level / 100 + 5) /* TODO: multiply by nature */); }
+		else { d = Math.floor(Math.floor((2 * currentFight.pokemon.player.stats.def.base + currentFight.pokemon.player.stats.def.iv + currentFight.pokemon.player.stats.def.ev) * currentFight.pokemon.player.level / 100 + 5) /* TODO: multiply by nature */); }
+		var dmg = Math.floor(Math.floor(Math.floor(2 * currentFight.pokemon.enemy.level / 5 + 2) * a * attack.power / d) / 50) + 2;
+		if (c==1) { dmg = dmg * 2; }
+		// TODO: Add status effects here.
+		// Hit the target.
+		currentFight.pokemon.player.hp = Math.max(currentFight.pokemon.player.hp - dmg, 0); // Math.max() to have 0 as the lowest possible amount.
+		if (currentFight.pokemon.player.hp > 0) {
+			
+		} else {
+			// TODO: Pokemon is dead.
+		}
+	}
 }

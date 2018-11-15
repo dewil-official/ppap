@@ -113,6 +113,9 @@ async function getAttacks(pkmn, level) {
         url: pkmn.moves[i].move.url,
         pp: att.pp,
         ppMax: att.pp,
+        acc: att.accuracy,
+        power: att.power,
+        class: att.damage_class.name,
       });
       // console.log(att);
     }
