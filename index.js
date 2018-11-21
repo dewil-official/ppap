@@ -553,7 +553,7 @@ function wildTurn() {
 	if (hit>=acc) {
 		// Miss attack.
 		dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an.");
-		setTimeout(function() { io.to(clients[iu].id).emit('attack-anim', "enemy"); }, 2000);
+		setTimeout(function() { io.sockets.emit('attack-anim', "enemy"); }, 2000);
 		setTimeout(function() { dialog("Der Angriff ging daneben.") }, 4000);
 		setTimeout(function() { nextRound(); }, 7000);
 	} else {
@@ -569,7 +569,11 @@ function wildTurn() {
 		// Hit the target.
 		currentFight.pokemon.player.hp = Math.max(currentFight.pokemon.player.hp - dmg, 0); // Math.max() to have 0 as the lowest possible amount.
 		if (currentFight.pokemon.player.hp > 0) {
-			
+			// Send that attack to all the users.
+			var obj = currentFight;
+			obj.attack = "wild"
+			io.sockets.emit('fight-attack');
+			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + "an!");
 		} else {
 			// TODO: Pokemon is dead.
 		}
