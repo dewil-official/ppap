@@ -516,6 +516,7 @@ socket.on ('do-animation', function(obj) {
         setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 4000);
         setTimeout(function(){ pball.setAttribute("class", ""); }, 5600);
         setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 7000);
+        setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "bounceIn"); }, 9000);
       }
       if (obj.nr==3) {
         pball.setAttribute("class", "animated shake");
@@ -524,19 +525,42 @@ socket.on ('do-animation', function(obj) {
         setTimeout(function(){ pball.setAttribute("class", ""); }, 3500);
         setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 3600);
         setTimeout(function(){ pball.setAttribute("class", ""); }, 4900);
+        setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 6000);
+        setTimeout(function(){
+          document.getElementById("enemy-pkmn").classList.add("animated", "bounceIn");
+          document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).setAttribute("src", fight.pokemon.enemy.img);
+        }, 6000);
+        setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "bounceIn"); }, 8000);
       }
       if (obj.nr==2) {
         pball.setAttribute("class", "animated shake");
         setTimeout(function(){ pball.setAttribute("class", ""); }, 1700);
         setTimeout(function(){ pball.setAttribute("class", "animated shake"); }, 1800);
         setTimeout(function(){ pball.setAttribute("class", ""); }, 3000);
+        setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 3600);
+        setTimeout(function(){
+          document.getElementById("enemy-pkmn").classList.add("animated", "bounceIn");
+          document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).setAttribute("src", fight.pokemon.enemy.img);
+        }, 3600);
+        setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "bounceIn"); }, 5600);
       }
       if (obj.nr==1) {
         pball.setAttribute("class", "animated shake");
         setTimeout(function(){ pball.setAttribute("class", ""); }, 1500);
+        setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 3000);
+        setTimeout(function(){
+          document.getElementById("enemy-pkmn").classList.add("animated", "bounceIn");
+          document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).setAttribute("src", fight.pokemon.enemy.img);
+        }, 3000);
+        setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "bounceIn"); }, 5000);
       }
       if (obj.nr==0) {
-
+        setTimeout(function(){ pball.setAttribute("class", "animated fadeOut"); }, 1000);
+        setTimeout(function(){
+          document.getElementById("enemy-pkmn").classList.add("animated", "bounceIn");
+          document.getElementById("enemy-pkmn").getElementsByTagName("img").item(0).setAttribute("src", fight.pokemon.enemy.img);
+        }, 1000);
+        setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "bounceIn"); }, 3000);
       }
     }, 2200);
   }

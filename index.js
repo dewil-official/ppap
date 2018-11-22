@@ -552,7 +552,7 @@ function wildTurn() {
 	// If the move fails, send everything to the clients.
 	if (hit>=acc) {
 		// Miss attack.
-		dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an.");
+		dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
 		setTimeout(function() { io.sockets.emit('attack-anim', "enemy"); }, 2000);
 		setTimeout(function() { dialog("Der Angriff ging daneben.") }, 4000);
 		setTimeout(function() { nextRound(); }, 7000);
@@ -573,7 +573,7 @@ function wildTurn() {
 			var obj = currentFight;
 			obj.attack = "wild"
 			io.sockets.emit('fight-attack');
-			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + "an!");
+			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
 		} else {
 			// TODO: Pokemon is dead.
 		}
