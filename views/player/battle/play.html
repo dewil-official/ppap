@@ -566,6 +566,29 @@ socket.on ('do-animation', function(obj) {
   }
 });
 
+socket.on ('fight-attack', function(obj) {
+  // Do ANIMATION when a pokemon attacks.
+  if (obj.attack == "enemy") {
+    // Attack animation
+    document.getElementById("enemy-pkmn").classList.add("animated", "bounce");
+    setTimeout(function(){
+      document.getElementById("enemy-pkmn").classList.remove("animated", "bounce");
+      // Hit animation
+      document.getElementById("own-pkmn").classList.add("animated", "tada");
+      setTimeout(function(){ document.getElementById("own-pkmn").classList.remove("animated", "tada"); }, 2000);
+    }, 1000);
+  } else if (obj.attack == "player") {
+    // Attack animation
+    document.getElementById("own-pkmn").classList.add("animated", "bounce");
+    setTimeout(function(){
+      document.getElementById("own-pkmn").classList.remove("animated", "bounce");
+      // Hit animation
+      document.getElementById("enemy-pkmn").classList.add("animated", "tada");
+      setTimeout(function(){ document.getElementById("enemy-pkmn").classList.remove("animated", "tada"); }, 2000);
+    }, 1000);
+  }
+});
+
 </script>
 <style>
 ::-webkit-scrollbar

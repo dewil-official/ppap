@@ -398,7 +398,7 @@ function battleUseItem(obj) {
                 }
               }
               console.log("CatchCount: " + catchCount);
-              if (catchCount == 4) { catchPokemon(); } else { dialog(currentFight.pokemon.enemy.name + " konnte sich befreien!"); setTimeout(function(){wildTurn();}, 8000); }
+              if (catchCount == 4) { catchPokemon(); } else { setTimeout(function(){dialog(currentFight.pokemon.enemy.name + " konnte sich befreien!");}, 2000*catchCount); setTimeout(function(){wildTurn();}, 2000*catchCount+2000); }
               doAnimation("catch", obj.img, "enemy", catchCount);
             }, 3500);
           }
@@ -568,14 +568,16 @@ function wildTurn() {
 		// TODO: Add status effects here.
 		// Hit the target.
 		currentFight.pokemon.player.hp = Math.max(currentFight.pokemon.player.hp - dmg, 0); // Math.max() to have 0 as the lowest possible amount.
-		if (currentFight.pokemon.player.hp > 0) {
-			// Send that attack to all the users.
-			var obj = currentFight;
-			obj.attack = "wild"
-			io.sockets.emit('fight-attack');
-			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
-		} else {
-			// TODO: Pokemon is dead.
-		}
+		setTimeout( function() {
+			if (currentFight.pokemon.player.hp > 0) {
+				// Send that attack to all the users.
+				var obj = currentFight;
+				obj.attack = "enemy"
+				io.sockets.emit('fight-attack', obj);
+				dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
+			} else {
+				// TODO: Pokemon is dead.
+			}
+		}, 4000);
 	}
 }
