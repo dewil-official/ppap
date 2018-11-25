@@ -308,6 +308,7 @@ var currentFight = {
 var gmQuest = "";
 
 function resetFight() {
+	// Reset the temp values.
   inFight = 0;
   currentFight.type = "";
   currentFight.player = "";
@@ -566,18 +567,49 @@ function wildTurn() {
 		var dmg = Math.floor(Math.floor(Math.floor(2 * currentFight.pokemon.enemy.level / 5 + 2) * a * attack.power / d) / 50) + 2;
 		if (c==1) { dmg = dmg * 2; }
 		// TODO: Add status effects here.
+
 		// Hit the target.
 		currentFight.pokemon.player.hp = Math.max(currentFight.pokemon.player.hp - dmg, 0); // Math.max() to have 0 as the lowest possible amount.
+		// TODO: Add perma storage support.
 		setTimeout( function() {
-			if (currentFight.pokemon.player.hp > 0) {
-				// Send that attack to all the users.
-				var obj = currentFight;
-				obj.attack = "enemy"
-				io.sockets.emit('fight-attack', obj);
-				dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
-			} else {
-				// TODO: Pokemon is dead.
-			}
+			// Send that attack to all the users.
+			var obj = currentFight;
+			obj.attack = "enemy"
+			io.sockets.emit('fight-attack', obj);
+			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
+
+			// Game logic on the damage taken.
+			setTimeout(function() {
+				// Player's pokemon is still alive -> continue fight
+				if (currentFight.pokemon.player.hp > 0) {
+					nextRound();
+
+				// Pokemon is dead
+				} else {
+
+					var living_pkmn = 0;
+					// Count living pokemon
+					for (p of storage.getUserByName(currentFight.player).team) {
+						// For each pokemon in the players team, check if it's alive.
+						if (p.hp > 0) {
+							living_pkmn++;
+						}
+					}
+
+					// End the battle, when the player is defeated.
+					if (living_pkmn <= 0) {
+						dialog ("Spieler " + currentFight.player + " wurde besiegt.");
+						setTimeout(function() {
+							resetFight();
+					}, 4000);
+
+					// Else, let the player choose a different pokemon.
+					} else {
+						dialog(currentFight.pokemon.player.name + "wurde besiegt.");
+						// TODO: Send a socket info, that the player has to choose a new pokemon.
+					}
+				}
+			}, 3000);
 		}, 4000);
 	}
 }
