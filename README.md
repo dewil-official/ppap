@@ -1,5 +1,7 @@
 # Pokemon Pen And Paper App
 
+> 🌡️ Progress: 70% | 🎛️ Refactoring: 10%
+
 ## 💡 The Idea
 
 About 3 weeks before starting this project I started a **pen & paper adventure** with my friends, where I tried to mimic the **original Pokemon Game experience** with some more creativeness and of course, the live multiplayer. This turned out to be a great idea, however, I had to go through the Pokemon wiki every time a player meets a pokemon.
