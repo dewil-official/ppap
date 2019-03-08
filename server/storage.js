@@ -1,5 +1,5 @@
 const LocalStorage = require('node-localstorage').LocalStorage;
-const localStorage = new LocalStorage('./storage');
+const localStorage = new LocalStorage('./permaData');
 
 // Convert local storage to JSON
 function getUsers(){

@@ -2,19 +2,20 @@
   "name": "ppap",
   "version": "0.1.0",
   "description": "Pokemon Pen And Paper",
-  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-data": "node tests/dataGenerator.js"
   },
   "author": "DeWil",
   "license": "MIT",
   "dependencies": {
-    "deasync": "^0.1.13",
-    "express": "^4.15.2",
+    "deasync": "^0.1.14",
+    "express": "^4.16.4",
     "node-localstorage": "^1.3.1",
-    "npm": "^6.4.1",
+    "npm": "^6.9.0",
     "pokeapi-js-wrapper": "^1.1.1",
     "pokedex": "^1.1.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.2.0"
   }
 }
