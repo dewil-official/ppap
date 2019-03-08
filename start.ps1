@@ -1,2 +1,0 @@
-﻿node index.js
-pause
