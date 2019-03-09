@@ -46,26 +46,14 @@ function newPokemon(u, pkmn) {
 }
 
 // External access to this functions
-module.exports.getUsers = function() {
-  return getUsers();
-}
+module.exports.getUsers = getUsers();
 
-module.exports.getUserByName = function(n) {
-  return getUserByName(n);
-}
+module.exports.getUserByName = getUserByName();
 
-module.exports.getTeamByName = function(n) {
-  return getUserByName(n).team;
-}
+module.exports.getTeamByName = getUserByName().team;
 
-module.exports.setUsers = function(u) {
-  setUsers(u);
-}
+module.exports.setUsers = setUsers();
 
-module.exports.setUser = function(u) {
-  setUser(u);
-}
+module.exports.setUser = setUser();
 
-module.exports.catchPokemon = function(uname, pkmn) {
-  newPokemon(uname, pkmn);
-}
+module.exports.catchPokemon = newPokemon();

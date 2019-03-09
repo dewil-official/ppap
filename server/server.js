@@ -1,16 +1,16 @@
-// Imports
+// Server Modules (Express + Socket.io)
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 var express = require('express');
-var deasync = require('deasync');
-const Pokedex = require('pokeapi-js-wrapper');
-const P = new Pokedex.Pokedex();
-var ImgDex = require('pokedex'), imgdex = new ImgDex();
+	const Pokedex = require('pokeapi-js-wrapper');
+	const P = new Pokedex.Pokedex();
+	var ImgDex = require('pokedex'), imgdex = new ImgDex();
 
-// Selfmade scripts
+// Custom Modules
 const storage = require('./storage.js');
+const pokemon = require('./pokemon.js');
 
 // Variables
 var clients = [];
