@@ -1,105 +1,127 @@
 // Imports
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var path = require('path');
-var express = require('express');
-var deasync = require('deasync');
-const Pokedex = require('pokeapi-js-wrapper');
+var app = require("express")();
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
+var path = require("path");
+var express = require("express");
+var deasync = require("deasync");
+const Pokedex = require("pokeapi-js-wrapper");
 const P = new Pokedex.Pokedex();
-var ImgDex = require('pokedex'), imgdex = new ImgDex();
+var ImgDex = require("pokedex"),
+  imgdex = new ImgDex();
 
 // Selfmade scripts
-const storage = require('./server/storage.js');
+const storage = require("./server/storage.js");
 
-/*storage.setUsers([{ name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]}, { name: "GameMaster", passwort: "Gu1tarre" }]);
+/*storage.setUsers([{ name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]}, { name: "GameMaster", passwort: "Password" }]);
 
 var user = { name: "Alex", passwort: "ikd", team: [{name:"Glurak",id:6,typ:["Feuer","Flug"],level:45,img:"https://www.pokewiki.de/images/9/96/Sugimori_006.png",gender:"w",nature:12,attacks:[{name:"Schlitzer",typ:"Normal",url:"https://pokeapi.co/api/v2/move/163/",pp:20,ppMax:20},{name:"Funkenflug",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/481/",pp:15,ppMax:15},{name:"Feuerzahn",typ:"Feuer",url:"https://pokeapi.co/api/v2/move/424/",pp:15,ppMax:15},{name:"Grimasse",typ:"Normal",url:"https://pokeapi.co/api/v2/move/184/",pp:10,ppMax:10}],stats:{hp:{base:78,iv:20,ev:0},atk:{base:84,iv:20,ev:0},def:{base:78,iv:20,ev:0},spAtk:{base:109,iv:20,ev:0},spDef:{base:85,iv:20,ev:0},speed:{base:100,iv:20,ev:0}},hp:185}]};
-var user = { name: "GameMaster", passwort: "Gu1tarre" };*/
+var user = { name: "GameMaster", passwort: "Password" };*/
 
 // Variables
 var clients = [];
 
 // Static Resources
-app.use(express.static(path.join(__dirname, 'public/js')));
-app.use(express.static(path.join(__dirname, 'public/css')));
-app.use(express.static(path.join(__dirname, 'public/icon')));
+app.use(express.static(path.join(__dirname, "public/js")));
+app.use(express.static(path.join(__dirname, "public/css")));
+app.use(express.static(path.join(__dirname, "public/icon")));
 
 // Send HTML for Clients
-app.get('/', function(req, res){            res.sendFile(__dirname + '/views' + '/login.html');});
-app.get('/play', function(req, res){        res.sendFile(__dirname + '/views' + '/player/team.html');});
-app.get('/beutel', function(req, res){      res.sendFile(__dirname + '/views' + '/player/beutel.html');});
-app.get('/char', function(req, res){        res.sendFile(__dirname + '/views' + '/player/char.html');});
-app.get('/gm/controls', function(req, res){ res.sendFile(__dirname + '/views' + '/gamemaster/controls.html');});
-app.get('/gm/fight', function(req, res){    res.sendFile(__dirname + '/views' + '/gamemaster/fight.html');});
-app.get('/gm/players', function(req, res){  res.sendFile(__dirname + '/views' + '/gamemaster/players.html');});
-app.get('/battle', function(req, res){      res.sendFile(__dirname + '/views' + '/player/battle/spectate.html');});
-app.get('/battle/play', function(req, res){ res.sendFile(__dirname + '/views' + '/player/battle/play.html');});
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/login.html");
+});
+app.get("/play", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/player/team.html");
+});
+app.get("/beutel", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/player/beutel.html");
+});
+app.get("/char", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/player/char.html");
+});
+app.get("/gm/controls", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/gamemaster/controls.html");
+});
+app.get("/gm/fight", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/gamemaster/fight.html");
+});
+app.get("/gm/players", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/gamemaster/players.html");
+});
+app.get("/battle", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/player/battle/spectate.html");
+});
+app.get("/battle/play", function (req, res) {
+  res.sendFile(__dirname + "/views" + "/player/battle/play.html");
+});
 
 // Handle Data-Flow
-io.on('connection', function(socket){
-	// New Connection
-	console.log('Connected client');
-  clients.push({id: socket.id});
+io.on("connection", function (socket) {
+  // New Connection
+  console.log("Connected client");
+  clients.push({ id: socket.id });
 
-	// Disconnect Handling
-	socket.on('disconnect', function(){
-		console.log('Disconnected client');
+  // Disconnect Handling
+  socket.on("disconnect", function () {
+    console.log("Disconnected client");
     var ix = 0; // Counting index
-    ixloop:
-    for (i = 0; i < clients.length; i++) {
-      if ( socket.id == clients[i].id ) { ix = i; break ixloop; }
+    ixloop: for (i = 0; i < clients.length; i++) {
+      if (socket.id == clients[i].id) {
+        ix = i;
+        break ixloop;
+      }
     }
     clients.splice(ix, 1);
-	});
+  });
 
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
   //                      LOGIN - DATA                               //
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
 
-	// User List Request
-	socket.on('requestUserList', function(){
-    socket.emit('userList', storage.getUsers());
-	});
+  // User List Request
+  socket.on("requestUserList", function () {
+    socket.emit("userList", storage.getUsers());
+  });
 
-	socket.on('registerUser', function(obj){
-
+  socket.on("registerUser", function (obj) {
     var userList = storage.getUsers();
-    if (userList == null || userList == 'undefined') { userList = []; }
+    if (userList == null || userList == "undefined") {
+      userList = [];
+    }
     userList.push(obj);
     storage.setUsers(userList);
+  });
 
-	});
-
-	socket.on('login', function(obj){
-
+  socket.on("login", function (obj) {
     var user = storage.getUserByName(obj.name);
-    if ( user.passwort == obj.passwort ) {
-      socket.emit('login-success');
+    if (user.passwort == obj.passwort) {
+      socket.emit("login-success");
     } else {
-      socket.emit('login-failure');
+      socket.emit("login-failure");
     }
 
     // Add username to sockety-users-object
     var ix = 0; // Counting index
-    ixloop:
-    for (i = 0; i < clients.length; i++) {
-      if ( socket.id == clients[i].id ) { ix = i; break ixloop; }
+    ixloop: for (i = 0; i < clients.length; i++) {
+      if (socket.id == clients[i].id) {
+        ix = i;
+        break ixloop;
+      }
     }
     clients[ix].name = obj.name;
+  });
 
-	});
-
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
   //                    GENERAL DATA-REQUESTS                        //
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
 
-	socket.on('initial-request', function(uname){
-
-		console.log("uname: " + uname);
+  socket.on("initial-request", function (uname) {
+    console.log("uname: " + uname);
     // Set the user-name again for socket.id
     for (i = 0; i < clients.length; i++) {
-      if ( socket.id == clients[i].id ) { clients[i].name = uname; }
+      if (socket.id == clients[i].id) {
+        clients[i].name = uname;
+      }
     }
 
     if (uname == "GameMaster") {
@@ -107,52 +129,50 @@ io.on('connection', function(socket){
     } else {
       updateUser(socket);
     }
+  });
 
-	});
+  socket.on("id-get-img", function (id) {
+    socket.emit("id-send-img", imgdex.pokemon(id).sprites.animated);
+  });
 
-	socket.on('id-get-img', function(id){
-    socket.emit('id-send-img', imgdex.pokemon(id).sprites.animated);
-	});
-
-	socket.on('encounter-pokemon', function(obj){
+  socket.on("encounter-pokemon", function (obj) {
     encounterPokemon(obj);
-	});
+  });
 
-	socket.on('get-fight-update', function(){
-    socket.emit('fight-update', currentFight);
-	});
+  socket.on("get-fight-update", function () {
+    socket.emit("fight-update", currentFight);
+  });
 
-	socket.on('new-item', function(obj){
+  socket.on("new-item", function (obj) {
     newItem(obj);
-	});
+  });
 
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
   //                        BATTLE NETWORKING                        //
-	// --------------------------------------------------------------- //
+  // --------------------------------------------------------------- //
 
-	socket.on('pick-pkmn', function(obj){
+  socket.on("pick-pkmn", function (obj) {
     currentFight.pokemon.player = obj;
-    socket.emit('fight-update', currentFight);
-	});
+    socket.emit("fight-update", currentFight);
+  });
 
-	socket.on('flee', function(obj){
+  socket.on("flee", function (obj) {
     flee();
-	});
+  });
 
-	socket.on('use-item', function(obj){
+  socket.on("use-item", function (obj) {
     battleUseItem(obj);
-	});
+  });
 
-	socket.on('gm-quest-answer', function(ans){
+  socket.on("gm-quest-answer", function (ans) {
     gmQuest = ans;
-	});
-
+  });
 });
 
 // --------------------------------------------------------------- //
 
-http.listen(80, function(){
-  console.log('listening on *:80');
+http.listen(80, function () {
+  console.log("listening on *:80");
 });
 
 /* --------------------------------------------------------------- //
@@ -160,24 +180,23 @@ http.listen(80, function(){
 // --------------------------------------------------------------- */
 
 function updateAllUsers() {
-
   for (i = 0; i < clients.length; i++) {
-    if ( clients[i].id !== 'undefined') {
-
+    if (clients[i].id !== "undefined") {
       var userList = storage.getUsers();
       for (iu = 0; iu < userList.length; iu++) {
-        if ( userList[iu].name == clients[i].name && userList[iu].name == "GameMaster") {
-
-          io.to(clients[i].id).emit('user-update', { players: storage.getUsers() } );
-
-        } else if ( userList[iu].name == clients[i].name) {
-
+        if (
+          userList[iu].name == clients[i].name &&
+          userList[iu].name == "GameMaster"
+        ) {
+          io.to(clients[i].id).emit("user-update", {
+            players: storage.getUsers(),
+          });
+        } else if (userList[iu].name == clients[i].name) {
           // Don't send the plain-password every time
           var obj = userList[iu];
           delete obj.passwort;
-          io.to(clients[i].id).emit('user-update', obj);
-          io.to(clients[i].id).emit('in-fight', inFight);
-
+          io.to(clients[i].id).emit("user-update", obj);
+          io.to(clients[i].id).emit("in-fight", inFight);
         }
       }
     }
@@ -185,28 +204,25 @@ function updateAllUsers() {
 }
 
 function updateUser(socket) {
+  ixloop: for (i = 0; i < clients.length; i++) {
+    if (socket.id == clients[i].id) {
+      // Get the user name by socket.id
 
-  ixloop:
-  for (i = 0; i < clients.length; i++) {
-    if ( socket.id == clients[i].id ) { // Get the user name by socket.id
-
-			console.log("Getting User by Name: " + clients[i].name);
+      console.log("Getting User by Name: " + clients[i].name);
       var user = storage.getUserByName(clients[i].name);
-			console.log("User: " + user);
+      console.log("User: " + user);
 
       delete user.passwort;
-      socket.emit('user-update', user);
-      socket.emit('in-fight', inFight);
+      socket.emit("user-update", user);
+      socket.emit("in-fight", inFight);
       break ixloop;
-
     }
   }
-
 }
 
 function updateGm(socket) {
   // Retrieve All Userdata from Database
-  socket.emit('user-update', { players: storage.getUsers() });
+  socket.emit("user-update", { players: storage.getUsers() });
 }
 
 /* --------------------------------------------------------------- //
@@ -214,28 +230,21 @@ function updateGm(socket) {
 // --------------------------------------------------------------- */
 
 function getTeamForSocket(socket) {
-
   // Get the username for the socket.id
-  ixloop:
-  for (ic = 0; ic < clients.length; ic++) {
-    if ( socket.id == clients[ic].id ) {
-
+  ixloop: for (ic = 0; ic < clients.length; ic++) {
+    if (socket.id == clients[ic].id) {
       return storage.getTeamByName(clients[ic].name);
-
     }
   }
-
 }
 
-function newItem(obj){
-
+function newItem(obj) {
   // For each player
-  loop:
-  for (ip = 0; ip < obj.players.length; ip++) {
+  loop: for (ip = 0; ip < obj.players.length; ip++) {
     // Get matching user by name
     var user = storage.getUserByName(obj.players[ip]);
     // If the user has no items, create a new array for Insertion.
-    if ( user.items == null || user.items == "" || user.items === 'undefined' ) {
+    if (user.items == null || user.items == "" || user.items === "undefined") {
       // Create an empty array
       user.items = [];
       var itemAlreadyThere = 0;
@@ -261,12 +270,13 @@ function newItem(obj){
       user.items.push(insertObj);
       storage.setUser(user);
       break loop;
-    // If the item is there already, raise it's count.
+      // If the item is there already, raise it's count.
     } else {
       // Raise that item's count
       for (k = 0; k < user.items.length; k++) {
         if (user.items[k].id == obj.id) {
-          user.items[k].count = parseInt(user.items[k].count) + parseInt(obj.count);
+          user.items[k].count =
+            parseInt(user.items[k].count) + parseInt(obj.count);
           storage.setUser(user);
           break loop;
         }
@@ -275,7 +285,6 @@ function newItem(obj){
   }
   // Submit that change.
   updateAllUsers();
-
 }
 
 function encounterPokemon(obj) {
@@ -303,12 +312,12 @@ var currentFight = {
   pokemon: {
     player: {},
     enemy: {},
-  }
-}
+  },
+};
 var gmQuest = "";
 
 function resetFight() {
-	// Reset the temp values.
+  // Reset the temp values.
   inFight = 0;
   currentFight.type = "";
   currentFight.player = "";
@@ -328,42 +337,56 @@ function startWildBattle(wildPkmn, playerName) {
   currentFight.player = playerName;
   currentFight.enemy = "wild";
   currentFight.pokemon.enemy = wildPkmn;
-  io.sockets.emit('in-fight', inFight);
-  setTimeout(function() {
+  io.sockets.emit("in-fight", inFight);
+  setTimeout(function () {
     dialog("Ein wildes " + wildPkmn.name + " erscheint!");
-  } , 3000);
+  }, 3000);
 }
 
 function updateFight() {
-  io.sockets.emit('fight-update', currentFight);
+  io.sockets.emit("fight-update", currentFight);
   updateAllUsers();
 }
 
 function flee() {
-  var f = Math.floor(getStat(currentFight.pokemon.player, "speed")*128/getStat(currentFight.pokemon.enemy, "speed")+(30*currentFight.stats.fleeCount));
+  var f = Math.floor(
+    (getStat(currentFight.pokemon.player, "speed") * 128) /
+      getStat(currentFight.pokemon.enemy, "speed") +
+      30 * currentFight.stats.fleeCount
+  );
   var rd = Math.floor(Math.random() * 255);
-  if (f >= 256 || rd < f) { // Successfully flee
-    dialog('Flucht erfolgreich.');
+  if (f >= 256 || rd < f) {
+    // Successfully flee
+    dialog("Flucht erfolgreich.");
     resetFight();
-    setTimeout(function() {
-      io.sockets.emit('in-fight', inFight);
-    } ,3000);
-  } else { // Don't flee
-    dialog('Flucht gescheitert!');
+    setTimeout(function () {
+      io.sockets.emit("in-fight", inFight);
+    }, 3000);
+  } else {
+    // Don't flee
+    dialog("Flucht gescheitert!");
   }
 }
 
 function getStat(pkmn, statName) {
   var n = 1; // TODO: nature modifier
-  var stat = Math.floor(Math.floor((2 * pkmn.stats[statName].base + pkmn.stats[statName].iv + pkmn.stats[statName].ev) * pkmn.level / 100 + 5) * n);
+  var stat = Math.floor(
+    Math.floor(
+      ((2 * pkmn.stats[statName].base +
+        pkmn.stats[statName].iv +
+        pkmn.stats[statName].ev) *
+        pkmn.level) /
+        100 +
+        5
+    ) * n
+  );
   return stat;
 }
 
 function battleUseItem(obj) {
   // First, decrease item count
   var userList = storage.getUsers();
-  loop:
-  for (i = 0; i < userList.length; i++) {
+  loop: for (i = 0; i < userList.length; i++) {
     // Get user by name
     if (userList[i].name == obj.player) {
       // Then, get the selected item by id
@@ -372,26 +395,61 @@ function battleUseItem(obj) {
         if (userList[i].items[ix].id == obj.id) {
           var userName = userList[i].name;
           var itemName = obj.name;
-          userList[i].items[ix].count = parseInt(userList[i].items[ix].count) - 1;
-          if (userList[i].items[ix].count <= 0) { userList[i].items.splice(ix, 1); }
+          userList[i].items[ix].count =
+            parseInt(userList[i].items[ix].count) - 1;
+          if (userList[i].items[ix].count <= 0) {
+            userList[i].items.splice(ix, 1);
+          }
           storage.setUsers(userList);
           currentFight.stage = 1;
           updateFight();
-          setTimeout(function(userName, itemName) { dialog(userName + ' verwendet ' + itemName + '!'); }, 2500, userName, itemName);
-          if (obj.category.name == "special-balls" || obj.category.name == "standard-balls") {
+          setTimeout(
+            function (userName, itemName) {
+              dialog(userName + " verwendet " + itemName + "!");
+            },
+            2500,
+            userName,
+            itemName
+          );
+          if (
+            obj.category.name == "special-balls" ||
+            obj.category.name == "standard-balls"
+          ) {
             var ballBonus = getBallBonus(obj.id, currentFight.pokemon.enemy, 0);
             // Needs to be executed later, after the Gm answered the ballBonus
-            setTimeout(function(){
-              if (ballBonus == 0) { ballBonus = getBallBonus(obj.id, currentFight.pokemon.enemy, 1); }
-              var statusBonus = getStatusBonus(currentFight.pokemon.enemy.status);
-              var maxHp = Math.floor((2 * currentFight.pokemon.enemy.stats.hp.base + currentFight.pokemon.enemy.stats.hp.iv + currentFight.pokemon.enemy.stats.hp.ev) * currentFight.pokemon.enemy.level / 100 + currentFight.pokemon.enemy.level + 10);
-              var catchRate = Math.round(((3*maxHp-2*currentFight.pokemon.enemy.hp)*currentFight.pokemon.enemy.captureRate*ballBonus)/(3*maxHp)*statusBonus);
-              if (catchRate >= 255) { var catchCount = 4; } else {
-                var b = (1048560/Math.sqrt(Math.sqrt(16711680/parseInt(catchRate))));
+            setTimeout(function () {
+              if (ballBonus == 0) {
+                ballBonus = getBallBonus(obj.id, currentFight.pokemon.enemy, 1);
+              }
+              var statusBonus = getStatusBonus(
+                currentFight.pokemon.enemy.status
+              );
+              var maxHp = Math.floor(
+                ((2 * currentFight.pokemon.enemy.stats.hp.base +
+                  currentFight.pokemon.enemy.stats.hp.iv +
+                  currentFight.pokemon.enemy.stats.hp.ev) *
+                  currentFight.pokemon.enemy.level) /
+                  100 +
+                  currentFight.pokemon.enemy.level +
+                  10
+              );
+              var catchRate = Math.round(
+                (((3 * maxHp - 2 * currentFight.pokemon.enemy.hp) *
+                  currentFight.pokemon.enemy.captureRate *
+                  ballBonus) /
+                  (3 * maxHp)) *
+                  statusBonus
+              );
+              if (catchRate >= 255) {
+                var catchCount = 4;
+              } else {
+                var b =
+                  1048560 /
+                  Math.sqrt(Math.sqrt(16711680 / parseInt(catchRate)));
                 var catchCount = 0;
                 console.log("b: " + b);
                 for (icx = 0; icx < 4; icx++) {
-                  var r = Math.floor(Math.random()*65535);
+                  var r = Math.floor(Math.random() * 65535);
                   console.log("r: " + r);
                   if (r < b) {
                     catchCount++;
@@ -399,96 +457,138 @@ function battleUseItem(obj) {
                 }
               }
               console.log("CatchCount: " + catchCount);
-              if (catchCount == 4) { catchPokemon(); } else { setTimeout(function(){dialog(currentFight.pokemon.enemy.name + " konnte sich befreien!");}, 2000*catchCount); setTimeout(function(){wildTurn();}, 2000*catchCount+2000); }
+              if (catchCount == 4) {
+                catchPokemon();
+              } else {
+                setTimeout(function () {
+                  dialog(
+                    currentFight.pokemon.enemy.name + " konnte sich befreien!"
+                  );
+                }, 2000 * catchCount);
+                setTimeout(function () {
+                  wildTurn();
+                }, 2000 * catchCount + 2000);
+              }
               doAnimation("catch", obj.img, "enemy", catchCount);
             }, 3500);
           }
           break loop;
         }
-
       }
     }
   }
 }
 
 function dialog(msg, sub) {
-  if ( sub == "" || sub == null || sub === 'undefined' ) {
-    io.sockets.emit('fight-dialog', { msg: msg });
+  if (sub == "" || sub == null || sub === "undefined") {
+    io.sockets.emit("fight-dialog", { msg: msg });
   } else {
-    io.sockets.emit('fight-dialog', { msg: msg, sub: sub });
+    io.sockets.emit("fight-dialog", { msg: msg, sub: sub });
   }
-
 }
 
 function doAnimation(type, img, target, nr) {
-  io.sockets.emit('do-animation', { type: type, img: img, target: target, nr: nr });
+  io.sockets.emit("do-animation", {
+    type: type,
+    img: img,
+    target: target,
+    nr: nr,
+  });
 }
 
-function getBallBonus(id, target, gm) { // gm means, the function may get called a second time after the gm answered.
+function getBallBonus(id, target, gm) {
+  // gm means, the function may get called a second time after the gm answered.
   if (gm == 0) {
-    if (id == 1) { // Master Ball
+    if (id == 1) {
+      // Master Ball
       return 99999;
-    } else if (id == 2) { // Ultraball
+    } else if (id == 2) {
+      // Ultraball
       return 2;
-    } else if (id == 3) { // Superball
+    } else if (id == 3) {
+      // Superball
       return 1.5;
-    } else if (id == 4) { // Pokeball
+    } else if (id == 4) {
+      // Pokeball
       return 1;
-    } else if (id == 6) { // Netzball
-      if (target.typ[0] == "Käfer" || target.typ[0] == "Wasser" || target.typ[1] == "Käfer" || target.typ[1] == "Wasser") {
+    } else if (id == 6) {
+      // Netzball
+      if (
+        target.typ[0] == "Käfer" ||
+        target.typ[0] == "Wasser" ||
+        target.typ[1] == "Käfer" ||
+        target.typ[1] == "Wasser"
+      ) {
         return 3;
       } else {
         return 1;
       }
-    } else if (id == 7) { // Tauchball
+    } else if (id == 7) {
+      // Tauchball
       askGm("Surft oder Angelt der Trainer?");
       return 0;
-    } else if (id == 8) { // Nestball
+    } else if (id == 8) {
+      // Nestball
       var x = Math.round((40 - parseInt(target.level)) / 10);
-      if (x<=1) { x = 1; };
+      if (x <= 1) {
+        x = 1;
+      }
       return x;
-    } else if (id == 9) { // Wiederball
+    } else if (id == 9) {
+      // Wiederball
       askGm("Hat der Trainer das Pokemon bereits?");
       return 0;
-    } else if (id == 10) { // Timerball
+    } else if (id == 10) {
+      // Timerball
       var x = Math.round((currentFight.stats.rounds + 10) / 10);
-      if (x > 4) { x = 4 };
+      if (x > 4) {
+        x = 4;
+      }
       return x;
-    } else if (id == 11) { // Luxusball
+    } else if (id == 11) {
+      // Luxusball
       return 1;
-    } else if (id == 12) { // Premierball
+    } else if (id == 12) {
+      // Premierball
       return 1;
-    } else if (id == 13) { // Finsterball
+    } else if (id == 13) {
+      // Finsterball
       askGm("Ist es Nacht oder in einer Cave?");
       return 0;
-    } else if (id == 14) { // Heilball
+    } else if (id == 14) {
+      // Heilball
       return 1;
-    } else if (id == 15) { // Flottball
+    } else if (id == 15) {
+      // Flottball
       if (currentFight.stats.rounds == 0) {
         return 4;
       } else {
         return 1;
       }
-    } else if (id == 16) { // Jubelball
+    } else if (id == 16) {
+      // Jubelball
       return 1;
     } else {
       return 1;
     }
   } else {
-    if (id == 7) { // Tauchball
+    if (id == 7) {
+      // Tauchball
       if (gmQuest == "true") {
         return 3.5;
       } else {
         return 1;
       }
-    } else if (id == 9) { // Wiederball
+    } else if (id == 9) {
+      // Wiederball
       console.log(gmQuest);
       if (gmQuest == "true") {
         return 3;
       } else {
         return 1;
       }
-    } else if (id == 13) { // Finsterball
+    } else if (id == 13) {
+      // Finsterball
       if (gmQuest == "true") {
         return 3.5;
       } else {
@@ -501,10 +601,9 @@ function getBallBonus(id, target, gm) { // gm means, the function may get called
 }
 
 function askGm(quest) {
-  userloop:
-  for (iu = 0; iu < clients.length; iu++) {
+  userloop: for (iu = 0; iu < clients.length; iu++) {
     if (clients[iu].name == "GameMaster") {
-      io.to(clients[iu].id).emit('gm-quest', quest);
+      io.to(clients[iu].id).emit("gm-quest", quest);
       break userloop;
     }
   }
@@ -512,7 +611,7 @@ function askGm(quest) {
 }
 
 function getStatusBonus(status) {
-  if (status == null || status == "" || status === 'undefined') {
+  if (status == null || status == "" || status === "undefined") {
     return 1;
   } else if (status == "sleep" || status == "freeze") {
     return 2;
@@ -528,88 +627,161 @@ function catchPokemon() {
   // Add that pokemon into perma storage
   storage.catchPokemon(currentFight.player, currentFight.pokemon.enemy);
   // Then, end the battle
-	setTimeout( function() {
-		dialog(currentFight.pokemon.enemy.name + " wurde gefangen!");
-	}, 8000);
-	setTimeout( function() {
-		resetFight();
-		updateFight();
-	}, 10000);
+  setTimeout(function () {
+    dialog(currentFight.pokemon.enemy.name + " wurde gefangen!");
+  }, 8000);
+  setTimeout(function () {
+    resetFight();
+    updateFight();
+  }, 10000);
 }
 
 function nextRound() {
-	currentFight.stage = 0;
-	currentFight.stats.rounds++;
-	updateFight();
+  currentFight.stage = 0;
+  currentFight.stats.rounds++;
+  updateFight();
 }
 
 function wildTurn() {
-	// Choose attack
-	var attack = currentFight.pokemon.enemy.attacks[Math.floor(Math.random()*(currentFight.pokemon.enemy.attacks.length-1))]; // Get a random number between 0 and Attack-count - 1.
-	// Do an accuracy check
-	var acc = 50; // Accuracy is 50 if it's not available.
-	if (attack.acc !== null && attack.acc !== "") { acc = attack.acc }
-	var hit = Math.floor(Math.random()*100);
-	// If the move fails, send everything to the clients.
-	if (hit>=acc) {
-		// Miss attack.
-		dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
-		setTimeout(function() { io.sockets.emit('attack-anim', "enemy"); }, 2000);
-		setTimeout(function() { dialog("Der Angriff ging daneben.") }, 4000);
-		setTimeout(function() { nextRound(); }, 7000);
-	} else {
-		// Check if critical hit.
-		var c = Math.floor(Math.random()*16+1);
-		var a = 1; if (attack.class == "special") { a = Math.floor(Math.floor((2 * currentFight.pokemon.enemy.stats.spAtk.base + currentFight.pokemon.enemy.stats.spAtk.iv + currentFight.pokemon.enemy.stats.spAtk.ev) * currentFight.pokemon.enemy.level / 100 + 5) /* TODO: multiply by nature */); }
-		else { a = Math.floor(Math.floor((2 * currentFight.pokemon.enemy.stats.atk.base + currentFight.pokemon.enemy.stats.atk.iv + currentFight.pokemon.enemy.stats.atk.ev) * currentFight.pokemon.enemy.level / 100 + 5) /* TODO: multiply by nature */); }
-		var d = 1; if (attack.class == "special") { d = Math.floor(Math.floor((2 * currentFight.pokemon.player.stats.spDef.base + currentFight.pokemon.player.stats.spDef.iv + currentFight.pokemon.player.stats.spDef.ev) * currentFight.pokemon.player.level / 100 + 5) /* TODO: multiply by nature */); }
-		else { d = Math.floor(Math.floor((2 * currentFight.pokemon.player.stats.def.base + currentFight.pokemon.player.stats.def.iv + currentFight.pokemon.player.stats.def.ev) * currentFight.pokemon.player.level / 100 + 5) /* TODO: multiply by nature */); }
-		var dmg = Math.floor(Math.floor(Math.floor(2 * currentFight.pokemon.enemy.level / 5 + 2) * a * attack.power / d) / 50) + 2;
-		if (c==1) { dmg = dmg * 2; }
-		// TODO: Add status effects here.
+  // Choose attack
+  var attack =
+    currentFight.pokemon.enemy.attacks[
+      Math.floor(
+        Math.random() * (currentFight.pokemon.enemy.attacks.length - 1)
+      )
+    ]; // Get a random number between 0 and Attack-count - 1.
+  // Do an accuracy check
+  var acc = 50; // Accuracy is 50 if it's not available.
+  if (attack.acc !== null && attack.acc !== "") {
+    acc = attack.acc;
+  }
+  var hit = Math.floor(Math.random() * 100);
+  // If the move fails, send everything to the clients.
+  if (hit >= acc) {
+    // Miss attack.
+    dialog(
+      currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!"
+    );
+    setTimeout(function () {
+      io.sockets.emit("attack-anim", "enemy");
+    }, 2000);
+    setTimeout(function () {
+      dialog("Der Angriff ging daneben.");
+    }, 4000);
+    setTimeout(function () {
+      nextRound();
+    }, 7000);
+  } else {
+    // Check if critical hit.
+    var c = Math.floor(Math.random() * 16 + 1);
+    var a = 1;
+    if (attack.class == "special") {
+      a = Math.floor(
+        Math.floor(
+          ((2 * currentFight.pokemon.enemy.stats.spAtk.base +
+            currentFight.pokemon.enemy.stats.spAtk.iv +
+            currentFight.pokemon.enemy.stats.spAtk.ev) *
+            currentFight.pokemon.enemy.level) /
+            100 +
+            5
+        ) /* TODO: multiply by nature */
+      );
+    } else {
+      a = Math.floor(
+        Math.floor(
+          ((2 * currentFight.pokemon.enemy.stats.atk.base +
+            currentFight.pokemon.enemy.stats.atk.iv +
+            currentFight.pokemon.enemy.stats.atk.ev) *
+            currentFight.pokemon.enemy.level) /
+            100 +
+            5
+        ) /* TODO: multiply by nature */
+      );
+    }
+    var d = 1;
+    if (attack.class == "special") {
+      d = Math.floor(
+        Math.floor(
+          ((2 * currentFight.pokemon.player.stats.spDef.base +
+            currentFight.pokemon.player.stats.spDef.iv +
+            currentFight.pokemon.player.stats.spDef.ev) *
+            currentFight.pokemon.player.level) /
+            100 +
+            5
+        ) /* TODO: multiply by nature */
+      );
+    } else {
+      d = Math.floor(
+        Math.floor(
+          ((2 * currentFight.pokemon.player.stats.def.base +
+            currentFight.pokemon.player.stats.def.iv +
+            currentFight.pokemon.player.stats.def.ev) *
+            currentFight.pokemon.player.level) /
+            100 +
+            5
+        ) /* TODO: multiply by nature */
+      );
+    }
+    var dmg =
+      Math.floor(
+        Math.floor(
+          (Math.floor((2 * currentFight.pokemon.enemy.level) / 5 + 2) *
+            a *
+            attack.power) /
+            d
+        ) / 50
+      ) + 2;
+    if (c == 1) {
+      dmg = dmg * 2;
+    }
+    // TODO: Add status effects here.
 
-		// Hit the target.
-		currentFight.pokemon.player.hp = Math.max(currentFight.pokemon.player.hp - dmg, 0); // Math.max() to have 0 as the lowest possible amount.
-		// TODO: Add perma storage support.
-		setTimeout( function() {
-			// Send that attack to all the users.
-			var obj = currentFight;
-			obj.attack = "enemy"
-			io.sockets.emit('fight-attack', obj);
-			dialog(currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!");
+    // Hit the target.
+    currentFight.pokemon.player.hp = Math.max(
+      currentFight.pokemon.player.hp - dmg,
+      0
+    ); // Math.max() to have 0 as the lowest possible amount.
+    // TODO: Add perma storage support.
+    setTimeout(function () {
+      // Send that attack to all the users.
+      var obj = currentFight;
+      obj.attack = "enemy";
+      io.sockets.emit("fight-attack", obj);
+      dialog(
+        currentFight.pokemon.enemy.name + " greift mit " + attack.name + " an!"
+      );
 
-			// Game logic on the damage taken.
-			setTimeout(function() {
-				// Player's pokemon is still alive -> continue fight
-				if (currentFight.pokemon.player.hp > 0) {
-					nextRound();
+      // Game logic on the damage taken.
+      setTimeout(function () {
+        // Player's pokemon is still alive -> continue fight
+        if (currentFight.pokemon.player.hp > 0) {
+          nextRound();
 
-				// Pokemon is dead
-				} else {
+          // Pokemon is dead
+        } else {
+          var living_pkmn = 0;
+          // Count living pokemon
+          for (p of storage.getUserByName(currentFight.player).team) {
+            // For each pokemon in the players team, check if it's alive.
+            if (p.hp > 0) {
+              living_pkmn++;
+            }
+          }
 
-					var living_pkmn = 0;
-					// Count living pokemon
-					for (p of storage.getUserByName(currentFight.player).team) {
-						// For each pokemon in the players team, check if it's alive.
-						if (p.hp > 0) {
-							living_pkmn++;
-						}
-					}
+          // End the battle, when the player is defeated.
+          if (living_pkmn <= 0) {
+            dialog("Spieler " + currentFight.player + " wurde besiegt.");
+            setTimeout(function () {
+              resetFight();
+            }, 4000);
 
-					// End the battle, when the player is defeated.
-					if (living_pkmn <= 0) {
-						dialog ("Spieler " + currentFight.player + " wurde besiegt.");
-						setTimeout(function() {
-							resetFight();
-					}, 4000);
-
-					// Else, let the player choose a different pokemon.
-					} else {
-						dialog(currentFight.pokemon.player.name + "wurde besiegt.");
-						// TODO: Send a socket info, that the player has to choose a new pokemon.
-					}
-				}
-			}, 3000);
-		}, 4000);
-	}
+            // Else, let the player choose a different pokemon.
+          } else {
+            dialog(currentFight.pokemon.player.name + "wurde besiegt.");
+            // TODO: Send a socket info, that the player has to choose a new pokemon.
+          }
+        }
+      }, 3000);
+    }, 4000);
+  }
 }
